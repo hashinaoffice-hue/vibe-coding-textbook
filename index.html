@@ -3,6 +3,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Hahmlet:wght@500;600&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans+KR:wght@400;500;600&display=swap">
 <style>
+[hidden]{display:none!important}
 /* Layout: 왼쪽 목차 레일 + 1920×1080 슬라이드를 화면에 맞춰 축소해 넘기는 교과서. 기본 다크(블랙 + 에메랄드), 버튼으로 라이트 전환 */
 :root{
   --bg:#090B0A; --slide:#0E1211; --surface:#161C1A; --line:#2E3834; --line-2:#4A5852; --ctl:#66766F; --chip:#212A27;
@@ -283,10 +284,86 @@ mark{background:linear-gradient(transparent 56%,var(--mark) 56%);color:inherit;p
   .pg{width:96px}
   .cbtn .tx{display:none}
 }
+
+/* ---------- 홈 (첫 화면, 스크롤 없음) ----------
+   위: 반쯤 걸친 원 안의 도트 — 마우스 근처가 커지며 빛남
+   가운데: 챕터·용어 검색
+   아래: 큰 원의 위 둘레를 따라 교과서 4권이 천천히 돌아감 */
+.home{position:fixed;inset:0;overflow:hidden;background:var(--bg);--H:100vh;--H:100dvh}
+.home canvas{position:absolute;display:block;pointer-events:none}
+#bgCv{inset:0;width:100%;height:100%}
+.disc{position:absolute;left:50%;border:1px solid var(--line-2);border-radius:50%;transform:translateX(-50%)}
+.disc.top{width:calc(var(--H)*.74);height:calc(var(--H)*.74);top:calc(var(--H)*-.37);overflow:hidden;background:var(--bg)}
+.disc.top canvas{inset:0;width:100%;height:100%}
+.disc.bot{width:calc(var(--H)*.72);height:calc(var(--H)*.72);top:calc(var(--H)*.72);background:var(--bg)}
+.ttl{position:absolute;left:50%;top:calc(var(--H)*.215);transform:translateX(-50%);text-align:center;pointer-events:none;white-space:nowrap}
+.ttl .k{font:500 11px/1 var(--f-mono);letter-spacing:.12em;color:var(--muted)}
+.ttl h1{font:600 28px/1.3 var(--f-display);margin:12px 0 0;letter-spacing:-.005em}
+.ttl h1 span{color:var(--accent)}
+
+.hbar{position:absolute;top:calc(env(safe-area-inset-top,0px) + 16px);right:16px;display:flex;gap:8px;z-index:3}
+.hbtn{display:inline-flex;align-items:center;gap:6px;padding:7px 10px;border:1px solid var(--line-2);border-radius:6px;font-size:12px;color:var(--ink-2);background:var(--bg)}
+.hbtn:hover{border-color:var(--ctl);color:var(--ink)}
+
+.srch{position:absolute;left:50%;top:calc(var(--H)*.5);transform:translate(-50%,-50%);width:min(440px,calc(100vw - 32px));z-index:20}
+.sbox{display:flex;align-items:center;gap:8px;height:40px;padding:0 8px 0 16px;border:1px solid var(--line-2);border-radius:20px;background:var(--surface);transition:border-color .2s,box-shadow .2s}
+.sbox:focus-within{border-color:var(--accent);box-shadow:0 0 0 4px var(--accent-soft)}
+.sbox .ic{color:var(--muted)}
+.sbox input{flex:1;min-width:0;height:100%;border:0;outline:0;background:none;color:var(--ink);font:400 14px/1 var(--f-body)}
+.sbox input::placeholder{color:var(--muted)}
+.sbox .kb{flex:none}
+.sbox:focus-within .kb{display:none}
+.sres{position:absolute;left:0;right:0;top:48px;margin:0;padding:8px;list-style:none;background:var(--surface);border:1px solid var(--line-2);border-radius:12px;box-shadow:var(--shadow);max-height:min(320px,calc(var(--H)*.42));overflow:auto;scrollbar-width:thin}
+.sres li button{display:grid;grid-template-columns:48px minmax(0,1fr);gap:8px;align-items:baseline;width:100%;text-align:left;padding:8px;border-radius:8px}
+.sres li button.on,.sres li button:hover{background:var(--chip)}
+.sres .tg{font:400 11px/1.6 var(--f-mono);color:var(--accent)}
+.sres .tt{font-size:13px;color:var(--ink);display:block}
+.sres .sb{font-size:12px;color:var(--muted);display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.sres .none{padding:8px;font-size:13px;color:var(--muted)}
+
+.orbs{position:absolute;inset:0;pointer-events:none}
+.orb{position:absolute;left:0;top:0;border-radius:50%;pointer-events:auto;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;border:1px solid var(--line-2);background:radial-gradient(circle at 50% 35%,var(--chip),var(--surface) 70%) var(--surface);color:var(--ink);will-change:transform,filter,opacity}
+.orb .lv{font:500 11px/1 var(--f-mono);letter-spacing:.1em;color:var(--muted)}
+.orb .nm{font:600 22px/1.2 var(--f-display)}
+.orb .os{font:400 11px/1 var(--f-mono);color:var(--muted)}
+.orb.ready{border-color:var(--accent);background:radial-gradient(circle at 50% 35%,var(--accent-soft),transparent 72%) var(--surface)}
+.orb.ready .lv,.orb.ready .os{color:var(--accent)}
+.orb.front{box-shadow:0 0 0 6px var(--accent-soft),0 0 48px var(--accent-soft)}
+.orb.front:not(.ready){box-shadow:0 0 0 6px var(--chip)}
+.orb:focus-visible{outline-offset:6px;border-radius:50%}
+.cap{position:absolute;left:50%;top:calc(var(--H)*.865);transform:translateX(-50%);width:min(360px,calc(100vw - 32px));text-align:center;display:grid;gap:4px}
+.cap .t{font-size:14px;font-weight:500}
+.cap .d{font-size:12px;color:var(--muted)}
+.cap .dots{display:flex;justify-content:center;gap:8px;margin-top:8px}
+.cap .dots i{width:6px;height:6px;border-radius:50%;background:var(--line-2);transition:background .3s,width .3s}
+.cap .dots i.on{width:16px;border-radius:3px;background:var(--accent)}
+.cap.swap{animation:capIn .5s ease}
+@keyframes capIn{from{opacity:0;transform:translate(-50%,4px)}to{opacity:1;transform:translateX(-50%)}}
+
+.side .home-link{display:inline-flex;align-items:center;gap:6px;align-self:flex-start;margin:-4px 0 20px -8px;padding:4px 8px;border-radius:6px;font-size:12px;color:var(--muted)}
+.side .home-link:hover{background:var(--chip);color:var(--ink)}
+
+@media (prefers-reduced-motion: reduce){ .cap.swap{animation:none} .sbox{transition:none} }
+@media (max-width:560px){ .sbox .kb{display:none} .ttl h1{font-size:24px} }
 </style>
 
-<div class="app">
+<div class="home" id="home" hidden>
+  <canvas id="bgCv" aria-hidden="true"></canvas>
+  <div class="disc top" id="dotDisc"><canvas id="dotCv" aria-hidden="true"></canvas></div>
+  <div class="ttl"><div class="k">VIBE CODING TEXTBOOK</div><h1>바이브 코딩 <span>교과서</span></h1></div>
+  <div class="hbar"><button class="hbtn" id="hModeBtn" type="button"></button></div>
+  <div class="srch" role="search">
+    <label class="sbox" for="q"><svg class="ic" viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.5"/><path d="M20 20l-4.2-4.2"/></svg><input id="q" type="search" autocomplete="off" placeholder="챕터나 용어를 찾아보세요" aria-label="챕터나 용어 검색" aria-controls="qRes" aria-expanded="false"><span class="kb">/</span></label>
+    <ul class="sres" id="qRes" role="listbox" hidden></ul>
+  </div>
+  <div class="disc bot" aria-hidden="true"></div>
+  <div class="orbs" id="orbs" role="group" aria-label="수준별 교과서"></div>
+  <div class="cap" id="cap" aria-live="polite"></div>
+</div>
+
+<div class="app" id="app" hidden>
   <aside class="side" id="side" aria-label="목차">
+    <button class="home-link" id="homeBtn" type="button"><svg class="ic" viewBox="0 0 24 24"><path d="M15 6l-6 6 6 6"/></svg>홈으로</button>
     <div class="brand-k">입문 커리큘럼</div>
     <div class="brand">바이브 코딩 교과서</div>
     <div class="prog">
@@ -1077,10 +1154,11 @@ fit();
 
 /* ---------- 애니메이션 ---------- */
 const svgs=[...deck.querySelectorAll('svg.fg')];
+var view='';
 let paused=false;
 try{ paused=matchMedia('(prefers-reduced-motion: reduce)').matches; }catch(e){}
 function applyMotion(){
-  svgs.forEach(s=>{ try{ (paused || !s.closest('.slide.on')) ? s.pauseAnimations() : s.unpauseAnimations(); }catch(e){} });
+  svgs.forEach(s=>{ try{ (paused || view!=='book' || !s.closest('.slide.on')) ? s.pauseAnimations() : s.unpauseAnimations(); }catch(e){} });
   const b=document.getElementById('motionBtn');
   b.innerHTML = paused ? `${IC.play}<span>그림 재생</span>` : `${IC.pause}<span>그림 멈춤</span>`;
   b.setAttribute('aria-pressed', String(paused));
@@ -1091,9 +1169,10 @@ document.getElementById('motionBtn').addEventListener('click',()=>{ paused=!paus
 const MODE='vc-textbook-mode';
 function setMode(m, keep){
   document.documentElement.setAttribute('data-mode', m);
-  const b=document.getElementById('modeBtn');
-  b.innerHTML = m==='light' ? `${IC.moon}<span>다크 모드</span>` : `${IC.sun}<span>라이트 모드</span>`;
-  b.setAttribute('aria-label', m==='light' ? '다크 모드로 바꾸기' : '라이트 모드로 바꾸기');
+  ['modeBtn','hModeBtn'].forEach(id=>{ const b=document.getElementById(id);
+    b.innerHTML = m==='light' ? `${IC.moon}<span>다크 모드</span>` : `${IC.sun}<span>라이트 모드</span>`;
+    b.setAttribute('aria-label', m==='light' ? '다크 모드로 바꾸기' : '라이트 모드로 바꾸기'); });
+  document.dispatchEvent(new Event('vc-mode'));
   if(keep){ try{ localStorage.setItem(MODE,m); }catch(e){} }
 }
 let mode='dark'; try{ mode=localStorage.getItem(MODE)||'dark'; }catch(e){}
@@ -1121,6 +1200,7 @@ function go(i){
 document.getElementById('prev').addEventListener('click',()=>go(cur-1));
 document.getElementById('next').addEventListener('click',()=>go(cur+1));
 document.addEventListener('keydown',e=>{
+  if(view!=='book') return;
   if(dlg && !dlg.hidden){ dlgKey(e); return; }
   if(e.altKey||e.ctrlKey||e.metaKey) return;
   const tag=(e.target.tagName||'').toLowerCase();
@@ -1219,5 +1299,229 @@ let start=0;
 const h=(location.hash||'').slice(1);
 if(h && h in firstOf) start=firstOf[h];
 else { try{ const v=parseInt(localStorage.getItem(LS),10); if(v>=0 && v<N) start=v; }catch(e){} }
+
+/* ---------- 홈: 화면 전환 ---------- */
+const homeEl=document.getElementById('home'), appEl=document.getElementById('app');
+function show(v){
+  if(view===v) return;
+  view=v;
+  homeEl.hidden = v!=='home';
+  appEl.hidden = v!=='book';
+  if(v==='book'){ fit(); go(cur); }
+  else { if(!dlg.hidden) closeD(true); drawer(false); closeRes(); homeResize(); }
+  applyMotion();
+  homeLoop();
+}
+function enterBook(i, detail){
+  show('book');
+  if(i!=null) go(i);
+  if(detail) openD(detail);
+  if(location.hash!=='#book') location.hash='book';
+}
+addEventListener('hashchange',()=>{ const h=location.hash.slice(1); show(h==='book' || h in firstOf ? 'book' : 'home'); });
+document.getElementById('homeBtn').addEventListener('click',()=>{ show('home'); location.hash='home'; });
+document.getElementById('hModeBtn').addEventListener('click',()=> setMode(document.documentElement.getAttribute('data-mode')==='light'?'dark':'light', true));
+
+/* ---------- 홈: 챕터·용어 검색 ---------- */
+const IDX=[], seenTerm=new Set();
+PARTS.forEach((p,i)=>{
+  IDX.push({tg:'PART '+pad(i), tt:p.title, sb:`${p.short} · 챕터 ${p.lessons.length}개`, hay:p.title+' '+p.short, go:()=>enterBook(firstOf['p'+i])});
+  p.lessons.forEach((l,j)=>{
+    const key=`${i}-${j+1}`, at=()=>enterBook(firstOf['p'+i]+1, key);
+    IDX.push({tg:key, tt:l[0], sb:l[1], hay:[l[0],l[1],...(l[2]||[])].join(' '), go:at});
+    ((DETAIL[key]||{}).t||[]).forEach(([term,r,m])=>{
+      if(seenTerm.has(term)) return; seenTerm.add(term);
+      const [og,rd]=r.includes('|')?r.split('|'):['',r];
+      IDX.push({tg:'용어', tt:term+(og?` · ${og}`:''), sb:m, hay:[term,og,rd].join(' '), go:at});
+    });
+  });
+});
+IDX.forEach(x=>{ x.lt=x.tt.toLowerCase(); x.lh=x.hay.toLowerCase(); });
+const qIn=document.getElementById('q'), qRes=document.getElementById('qRes');
+let hits=[], sel=0;
+function closeRes(){ qRes.hidden=true; qIn.setAttribute('aria-expanded','false'); }
+function renderRes(){
+  const q=qIn.value.trim().toLowerCase();
+  if(!q){ hits=[]; closeRes(); return; }
+  hits=IDX.map(x=>({x, s: x.lt.startsWith(q)?0 : x.lt.includes(q)?1 : x.lh.includes(q)?2 : 9})).filter(o=>o.s<9).sort((a,b)=>a.s-b.s).slice(0,8).map(o=>o.x);
+  sel=0;
+  qRes.innerHTML = hits.length ? hits.map((x,k)=>`<li><button type="button" role="option" data-k="${k}"${k===sel?' class="on" aria-selected="true"':''}><span class="tg">${esc(x.tg)}</span><span><span class="tt">${esc(x.tt)}</span><span class="sb">${esc(x.sb)}</span></span></button></li>`).join('')
+    : `<li class="none">‘${esc(qIn.value.trim())}’에 맞는 챕터나 용어가 없어요. 다른 낱말로 찾아보세요.</li>`;
+  qRes.hidden=false; qIn.setAttribute('aria-expanded','true');
+}
+function moveSel(n){
+  if(!hits.length) return;
+  sel=(sel+n+hits.length)%hits.length;
+  qRes.querySelectorAll('button').forEach((b,k)=>{ b.classList.toggle('on',k===sel); b.toggleAttribute('aria-selected',k===sel); if(k===sel) b.scrollIntoView({block:'nearest'}); });
+}
+qIn.addEventListener('input',renderRes);
+qIn.addEventListener('focus',()=>{ if(qIn.value.trim()) renderRes(); });
+qIn.addEventListener('keydown',e=>{
+  if(e.key==='ArrowDown'){ e.preventDefault(); moveSel(1); }
+  else if(e.key==='ArrowUp'){ e.preventDefault(); moveSel(-1); }
+  else if(e.key==='Enter'){ e.preventDefault(); if(hits[sel]){ const h=hits[sel]; qIn.value=''; closeRes(); h.go(); } }
+  else if(e.key==='Escape'){ if(qIn.value){ qIn.value=''; closeRes(); } else qIn.blur(); }
+});
+qRes.addEventListener('click',e=>{ const b=e.target.closest('button[data-k]'); if(!b) return; const h=hits[+b.dataset.k]; qIn.value=''; closeRes(); h.go(); });
+document.addEventListener('click',e=>{ if(view==='home' && !e.target.closest('.srch')) closeRes(); });
+
+/* ---------- 홈: 수준별 교과서 회전 ---------- */
+const BOOKS=[
+  {lv:'LV.1', nm:'입문', desc:'컴퓨터 용어부터 첫 배포까지 · 12 Part · 68 챕터', ready:true},
+  {lv:'LV.2', nm:'초보자', desc:'혼자서 작은 앱을 끝까지 만들어요'},
+  {lv:'LV.3', nm:'중수', desc:'서비스 구조를 설계하고 다듬어요'},
+  {lv:'LV.4', nm:'전문가', desc:'팀과 함께 AI 개발 흐름을 운영해요'}
+];
+const BM=BOOKS.length, POOL=BM*2, STEP=27*Math.PI/180, SIZE=[1,.78,.63,.52];
+const mod=(a,n)=>((a%n)+n)%n;
+const orbsEl=document.getElementById('orbs'), capEl=document.getElementById('cap');
+const orbEls=Array.from({length:POOL},(_,n)=>{
+  const b=BOOKS[n%BM], e=document.createElement('button');
+  e.type='button'; e.className='orb'+(b.ready?' ready':'');
+  e.setAttribute('aria-label', `${b.nm}용 교과서${b.ready?' 열기':' (준비 중)'}`);
+  e.innerHTML=`<span class="lv">${b.lv}</span><span class="nm">${b.nm}</span><span class="os">${b.ready?'열기':'준비 중'}</span>`;
+  e.addEventListener('click',()=>{
+    const rel=relOf(n);
+    if(Math.abs(rel)<.5){ if(b.ready) enterBook(); else { capEl.classList.remove('swap'); void capEl.offsetWidth; capEl.classList.add('swap'); } }
+    else { target=Math.round(phase+rel); lastSwitch=performance.now(); }
+  });
+  e.addEventListener('pointerenter',()=>{ hold=true; });
+  e.addEventListener('pointerleave',()=>{ hold=false; lastSwitch=performance.now(); });
+  e.addEventListener('focus',()=>{ hold=true; });
+  e.addEventListener('blur',()=>{ hold=false; lastSwitch=performance.now(); });
+  orbsEl.appendChild(e); return e;
+});
+let phase=0, target=0, hold=false, lastSwitch=performance.now(), capFor=-1;
+function relOf(n){ let r=mod(n-phase,POOL); if(r>=POOL/2) r-=POOL; return r; }
+let reduce=false; try{ reduce=matchMedia('(prefers-reduced-motion: reduce)').matches; }catch(e){}
+function placeOrbs(){
+  const W=homeEl.clientWidth, H=homeEl.clientHeight, cx=W/2, cy=H*1.08, R=H*.36, D=H*.23;
+  orbEls.forEach((e,n)=>{
+    const rel=relOf(n), a=Math.abs(rel), k=Math.min(a,3), f=Math.floor(k), sz=SIZE[f]+(SIZE[Math.min(f+1,3)]-SIZE[f])*(k-f);
+    const ang=rel*STEP, x=cx+R*Math.sin(ang), y=cy-R*Math.cos(ang);
+    const vis=a<2.6, op=Math.max(0,Math.min(1,(2.6-a)/.5))*(1-.26*Math.min(a,2));
+    e.style.width=e.style.height=D+'px';
+    e.style.transform=`translate(${x-D/2}px,${y-D/2}px) scale(${sz})`;
+    e.style.opacity=op;
+    e.style.filter=a<.05?'none':`blur(${Math.min(a*3.2,8).toFixed(2)}px)`;
+    e.style.zIndex=10-Math.round(a*2);
+    e.style.visibility=vis?'visible':'hidden';
+    e.tabIndex=vis&&a<1.5?0:-1;
+    e.classList.toggle('front',a<.5);
+  });
+  const fi=mod(Math.round(target),BM);
+  if(fi!==capFor){
+    capFor=fi; const b=BOOKS[fi];
+    capEl.innerHTML=`<div class="t">${b.nm}용 · ${b.ready?'바이브 코딩 교과서':'준비 중이에요'}</div><div class="d">${b.desc}</div><div class="dots">${BOOKS.map((_,k)=>`<i class="${k===fi?'on':''}"></i>`).join('')}</div>`;
+    capEl.classList.remove('swap'); void capEl.offsetWidth; capEl.classList.add('swap');
+  }
+}
+
+/* ---------- 홈: 색, 도트 원, 배경 ---------- */
+const hex=v=>{ v=v.trim().replace('#',''); if(v.length===3) v=[...v].map(c=>c+c).join(''); const n=parseInt(v,16); return [n>>16&255,n>>8&255,n&255]; };
+let C={};
+function homeColors(){
+  const cs=getComputedStyle(document.documentElement);
+  C={ac:hex(cs.getPropertyValue('--accent')), dot:hex(cs.getPropertyValue('--line-2')), ink:hex(cs.getPropertyValue('--muted')), light:document.documentElement.getAttribute('data-mode')==='light'};
+}
+const rgba=(c,a)=>`rgba(${c[0]},${c[1]},${c[2]},${a})`;
+const mix=(a,b,t)=>[0,1,2].map(i=>Math.round(a[i]+(b[i]-a[i])*t));
+document.addEventListener('vc-mode',homeColors);
+
+const dotCv=document.getElementById('dotCv'), dctx=dotCv.getContext('2d'), dotDisc=document.getElementById('dotDisc');
+const bgCv=document.getElementById('bgCv'), bctx=bgCv.getContext('2d');
+let dots=[], ttlBox=null, dR=0, nodes=[], ptr={x:-1e4,y:-1e4};
+function homeResize(){
+  if(view!=='home') return;
+  const dpr=Math.min(devicePixelRatio||1,2), W=homeEl.clientWidth, H=homeEl.clientHeight;
+  bgCv.width=W*dpr; bgCv.height=H*dpr; bctx.setTransform(dpr,0,0,dpr,0,0);
+  const d=dotDisc.clientWidth; dR=d/2;
+  dotCv.width=d*dpr; dotCv.height=d*dpr; dctx.setTransform(dpr,0,0,dpr,0,0);
+  const top=dotDisc.getBoundingClientRect().top, g=Math.max(12,Math.round(H/64));
+  dots=[];
+  for(let y=g/2; y<d; y+=g) for(let x=g/2; x<d; x+=g){
+    const dx=x-dR, dy=y-dR, r=Math.hypot(dx,dy);
+    if(r<dR-g*.6 && top+y>-g) dots.push({x,y,r,s:0});
+  }
+  const tb=document.querySelector('.ttl').getBoundingClientRect(), db=dotDisc.getBoundingClientRect();
+  ttlBox={x:tb.left-db.left+tb.width/2, y:tb.top-db.top+tb.height/2, rx:tb.width/2+28, ry:tb.height/2+20};
+  const n=Math.round(Math.max(28,Math.min(80,W*H/24000)));
+  nodes=Array.from({length:n},()=>({x:Math.random()*W, y:Math.random()*H, vx:(Math.random()-.5)*.25, vy:(Math.random()-.5)*.25, e:0}));
+  placeOrbs();
+}
+homeEl.addEventListener('pointermove',e=>{ const b=dotDisc.getBoundingClientRect(); ptr={x:e.clientX-b.left, y:e.clientY-b.top}; });
+homeEl.addEventListener('pointerleave',()=>{ ptr={x:-1e4,y:-1e4}; });
+
+function drawDots(t,dt){
+  const d=dR*2; dctx.clearRect(0,0,d,d);
+  const k1=Math.min(1,dt*10), k2=Math.min(1,dt*2.5);
+  for(const p of dots){
+    const md=Math.hypot(p.x-ptr.x,p.y-ptr.y), tg=md<120?Math.pow(1-md/120,2):0;
+    p.s+=(tg-p.s)*(tg>p.s?k1:k2);
+    const wave=reduce?.5:Math.sin(p.r*.035-t*1.1)*.5+.5;
+    let a=Math.max(.55+wave*.35,p.s), fade=1;
+    if(ttlBox){ const ex=(p.x-ttlBox.x)/ttlBox.rx, ey=(p.y-ttlBox.y)/ttlBox.ry, q=ex*ex+ey*ey; if(q<1.6) fade=Math.max(.12,q-.6); }
+    a*=fade;
+    const rad=1.1+wave*.35+p.s*3.4;
+    if(p.s>.04){ dctx.fillStyle=rgba(C.ac,p.s*.16*fade); dctx.beginPath(); dctx.arc(p.x,p.y,rad*3,0,7); dctx.fill(); }
+    dctx.fillStyle=rgba(mix(C.dot,C.ac,Math.min(1,p.s*1.4)),a);
+    dctx.beginPath(); dctx.arc(p.x,p.y,rad,0,7); dctx.fill();
+  }
+}
+function drawBg(t,dt){
+  const W=homeEl.clientWidth, H=homeEl.clientHeight;
+  bctx.clearRect(0,0,W,H);
+  [[.18,.55,.0],[.82,.42,2.1],[.5,.62,4.2]].forEach(([fx,fy,o])=>{
+    const x=W*fx+Math.sin(t*.07+o)*W*.06, y=H*fy+Math.cos(t*.05+o)*H*.06, r=Math.max(W,H)*.32;
+    const gr=bctx.createRadialGradient(x,y,0,x,y,r);
+    gr.addColorStop(0,rgba(C.ac,(C.light?.05:.06)*(.75+.25*Math.sin(t*.4+o)))); gr.addColorStop(1,rgba(C.ac,0));
+    bctx.fillStyle=gr; bctx.fillRect(0,0,W,H);
+  });
+  if(!reduce){
+    for(const p of nodes){ p.x+=p.vx*dt*60; p.y+=p.vy*dt*60; if(p.x<-20)p.x=W+20; if(p.x>W+20)p.x=-20; if(p.y<-20)p.y=H+20; if(p.y>H+20)p.y=-20; p.e*=Math.exp(-dt*1.6); }
+    if(Math.random()<dt*1.4) nodes[Math.floor(Math.random()*nodes.length)].e=1;
+  }
+  const L=140, base=C.light?.07:.06;
+  bctx.lineWidth=1;
+  for(let i=0;i<nodes.length;i++){ const a=nodes[i];
+    for(let j=i+1;j<nodes.length;j++){ const b=nodes[j], dd=Math.hypot(a.x-b.x,a.y-b.y); if(dd>L) continue;
+      const f=1-dd/L, e=Math.max(a.e,b.e);
+      bctx.strokeStyle= e>.05 ? rgba(C.ac,f*(base+e*.28)) : rgba(C.ink,f*base);
+      bctx.beginPath(); bctx.moveTo(a.x,a.y); bctx.lineTo(b.x,b.y); bctx.stroke();
+    }
+  }
+  for(const p of nodes){
+    if(p.e>.05){ bctx.fillStyle=rgba(C.ac,p.e*.12); bctx.beginPath(); bctx.arc(p.x,p.y,8,0,7); bctx.fill(); }
+    bctx.fillStyle=p.e>.05?rgba(C.ac,.25+p.e*.5):rgba(C.ink,.22); bctx.beginPath(); bctx.arc(p.x,p.y,1.4,0,7); bctx.fill();
+  }
+}
+let rafId=0, lastT=0;
+function frame(now){
+  rafId=0;
+  if(view!=='home' || document.hidden) return;
+  const dt=Math.min(.05,(now-(lastT||now))/1000); lastT=now;
+  const busy=hold || !qRes.hidden || document.activeElement===qIn;
+  if(!reduce && !busy && now-lastSwitch>4200){ target+=1; lastSwitch=now; }
+  if(busy) lastSwitch=Math.max(lastSwitch,now-2000);
+  phase = reduce ? target : phase+(target-phase)*(1-Math.exp(-dt*2.6));
+  if(Math.abs(target-phase)<1e-3) phase=target;
+  if(Math.abs(phase)>POOL*50){ const sh=Math.round(phase/POOL)*POOL; phase-=sh; target-=sh; }
+  placeOrbs(); drawDots(now/1000,dt); drawBg(now/1000,dt);
+  rafId=requestAnimationFrame(frame);
+}
+function homeLoop(){ if(view==='home' && !rafId){ lastT=0; rafId=requestAnimationFrame(frame); } }
+document.addEventListener('visibilitychange',homeLoop);
+if('ResizeObserver' in window) new ResizeObserver(homeResize).observe(homeEl); else addEventListener('resize',homeResize);
+
+document.addEventListener('keydown',e=>{
+  if(view!=='home' || e.altKey||e.ctrlKey||e.metaKey) return;
+  if(e.target===qIn) return;
+  if(e.key==='/'){ e.preventDefault(); qIn.focus(); }
+  else if(e.key==='ArrowRight'){ e.preventDefault(); target=Math.round(target)+1; lastSwitch=performance.now(); }
+  else if(e.key==='ArrowLeft'){ e.preventDefault(); target=Math.round(target)-1; lastSwitch=performance.now(); }
+});
+homeColors();
+
 go(start);
+show(h==='book' || h in firstOf ? 'book' : 'home');
 </script>
