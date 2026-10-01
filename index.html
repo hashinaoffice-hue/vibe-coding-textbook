@@ -62,10 +62,10 @@ mark{background:linear-gradient(transparent 56%,var(--mark) 56%);color:inherit;p
 .motion:hover{border-color:var(--ctl);color:var(--ink)}
 .side .spacer{flex:1;min-height:16px}
 
-.main{display:grid;grid-template-rows:minmax(0,1fr) auto;min-width:0;padding:24px 28px 0}
+.main{display:grid;grid-template-rows:minmax(0,1fr) auto;min-width:0;padding:0}
 .stage{position:relative;min-height:0;overflow:hidden}
 .deck{position:absolute;left:0;top:0;width:1920px;height:1080px;transform-origin:0 0;background:var(--slide);border-radius:20px;box-shadow:0 0 0 2px var(--line),var(--shadow);overflow:hidden}
-.ctrl{height:68px;display:flex;align-items:center;gap:16px}
+.ctrl{height:68px;display:flex;align-items:center;gap:16px;padding:0 28px}
 .ctrl .mid{flex:1;display:flex;align-items:center;justify-content:center;gap:16px}
 .cbtn{display:inline-flex;align-items:center;gap:8px;padding:7px 12px;border:1px solid var(--line-2);border-radius:6px;font-size:13px;color:var(--ink-2)}
 .cbtn:hover:not(:disabled){border-color:var(--line-2);color:var(--ink)}
@@ -312,7 +312,8 @@ mark{background:linear-gradient(transparent 56%,var(--mark) 56%);color:inherit;p
   .side{position:fixed;inset:0 auto 0 0;width:280px;z-index:20;transform:translateX(-105%);transition:transform .25s ease;padding-top:calc(env(safe-area-inset-top,0px) + 28px)}
   .side.open{transform:none}
   .scrim.open{display:block;position:fixed;inset:0;z-index:19;background:rgba(0,0,0,.55)}
-  .main{padding:16px 16px 0}
+  .main{padding:0}
+  .ctrl{padding:0 16px}
   .mob{display:inline-flex}
   .hint{display:none}
   .pg{width:96px}
@@ -1438,9 +1439,11 @@ function renderNav(){
 
 /* ---------- 화면 맞춤 ---------- */
 const stage=document.getElementById('stage');
+// 슬라이드는 16:9를 지키고, 네 방향 모두 최소 여백(M)을 둬요. 남는 공간은 가운데 정렬로 나눠요
 function fit(){
   const r=stage.getBoundingClientRect(); if(!r.width||!r.height) return;
-  const s=Math.min(r.width/1920, r.height/1080);
+  const M=innerWidth<=860?16:28;
+  const s=Math.max(.05,Math.min((r.width-2*M)/1920, (r.height-2*M)/1080));
   deck.style.transform=`scale(${s})`;
   deck.style.left=((r.width-1920*s)/2)+'px';
   deck.style.top=((r.height-1080*s)/2)+'px';
