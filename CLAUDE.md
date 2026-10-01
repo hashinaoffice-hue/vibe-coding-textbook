@@ -1,6 +1,6 @@
 # 바이브 코딩 백과사전
 
-코딩을 처음 배우는 사람을 위한 바이브 코딩 입문 커리큘럼. 홈(첫 화면) + PC로 넘겨 보는 16:9 슬라이드 교과서 형태의 단일 HTML 페이지.
+바이브 코딩을 배우는 사람을 위한 수준별 교과서 모음. 홈(첫 화면) + PC로 넘겨 보는 16:9 슬라이드 교과서(입문용 · 초보자용 …) 형태의 단일 HTML 페이지.
 
 - 배포 위치: claude.ai Artifact — https://claude.ai/artifact/MuRU8dVsYELWPz8DbEqWNC
   - 수정 후 같은 링크에 다시 올릴 때는 Artifact 도구에 `url`로 이 주소를 넘긴다. 새 세션에서는 먼저 `action: "read"`로 읽은 뒤 publish.
@@ -8,23 +8,35 @@
 
 ## 파일 구조
 
-`index.html` 하나에 모든 것이 들어 있다. 위에서부터:
+`index.html` 하나에 모든 것이 들어 있다. 교과서는 여러 권이고(지금 입문용 · 초보자용), 같은 엔진으로 그린다. 위에서부터:
 
-1. `<style>` — 디자인 토큰(`:root` = 다크 기본, `:root[data-mode="light"]` = 라이트), 앱 틀(실제 px), 슬라이드(1920×1080 단위), 상세 팝업, SVG 그림 클래스
-2. 첫 번째 `<script>` — `DETAIL`: 챕터별 상세 팝업 내용. 키는 `"Part-챕터"`(예: `"1-4"`)
-   - `s` 개념 문단, `p` 핵심 포인트 3개, `t` 용어 `[용어, '원어|읽는 법', 뜻]`(원어가 없으면 `'|읽는 법'`), `e` 선택 예시 `[제목, 본문]`
+1. `<style>` — 디자인 토큰(`:root` = 다크 기본, `:root[data-mode="light"]` = 라이트), 앱 틀(실제 px), 슬라이드(1920×1080 단위), 상세 팝업, SVG 그림 클래스, 홈, 여러 권 공통(준비 중 · 깊이 표시 `.dp` · 실습 슬라이드 `.px`)
+2. 첫 번째 `<script>` — `DETAIL1`: 입문용 챕터별 상세 팝업 내용. 키는 `"Part-챕터"`(예: `"1-4"`)
+   - `s` 개념 문단, `p` 핵심 포인트 3개, `t` 용어 `[용어, '원어|읽는 법', 뜻]`(원어가 없으면 `'|읽는 법'`), `e` 선택 예시 `[제목, 본문]`, `w` 선택 흔한 실수 목록(초보자용 '깊게' 챕터)
 3. 두 번째 `<script>`
    - SMIL 도우미(`an`, `mv`, `vis`, `draw`, `pop`, `arrow`)
-   - `FIG` — 그림 함수. 모두 `viewBox="0 0 400 300"`(4:3), `data-rest`는 처음 보여줄 프레임(초)
-   - `STAGES`, `PARTS` — 커리큘럼 본문 (12 Part, 68 챕터)
-   - 슬라이드 빌더(표지 → 구성 → 단계 표지 → Part마다 개념/챕터 2장 → 마치며 = 31장), 목차, 화면 맞춤, 넘기기, 진도(localStorage), 복사, 라이트/다크, 상세 팝업
+   - `FIG` — 입문용 그림(`hero`, `f0`~`f11`). 모두 `viewBox="0 0 400 300"`(4:3), `data-rest`는 처음 보여줄 프레임(초)
+   - `STAGES1`, `PARTS1` — 입문용 본문 (12 Part, 68 챕터)
+   - 초보자용(바이브 코딩 실습서): `NFIG`(그림 `hero`, `n0`~), `STAGES2`, `PARTS2`, `DETAIL2`, `NOVICE`(표지 · 구성 · 마치며 · 저장 키)
+     - 레슨은 `[제목, 한 줄 설명, 태그, 깊이]`. 깊이 `'d'` = 깊게, `'l'` = 가볍게
+     - Part에 `result`, `steps`([설명, 복사할 문장?]), `stuck`([증상, 해결])가 있으면 세 번째 '실습' 슬라이드가 붙는다
+     - 아직 안 쓴 Part는 `{short, title, todo:true}` — 목차와 구성에 '준비 중'으로만 보인다
+   - `BOOKDATA` — 권 목록(`intro`, `novice`). 권마다 `stages/parts/detail/fig/cover/end/how`와 진도 · 슬라이드 저장 키가 다르다
+   - 엔진: `loadBook(id)`가 슬라이드(표지 → 구성 → 단계 표지 → Part마다 개념/챕터(/실습) → 마치며), 목차, 진도를 다시 그린다. 화면 맞춤, 넘기기, 진도(localStorage), 복사(`data-copy`는 복사할 요소 id), 라이트/다크, 상세 팝업
    - 목차 사이드바 맨 아래 버튼은 [라이트/다크 모드][홈으로]. 스크롤바는 숨김(내용이 넘치면 휠로만 스크롤). 그림은 '움직임 줄이기' OS 설정일 때만 멈춤
-   - 홈(첫 화면) — `show('home'|'book')`으로 홈(`#home`)과 교과서(`.app`)를 바꾼다. 주소 해시가 `#book`이나 슬라이드 키(`p3`, `s1` 등)면 교과서로 바로 열린다.
+   - 홈(첫 화면) — `show('home'|'book')`으로 홈(`#home`)과 교과서(`.app`)를 바꾼다. 주소 해시 `#book` = 입문용, `#novice` = 초보자용. 예전 슬라이드 키(`#p3`, `#s1` 등)는 입문용으로 열린다.
      - 위: 원자 모양 도트(canvas `#dotCv`, 테두리 없음). 피보나치 구(핵) + 기울어진 궤도 3개 + 전자. 중심이 화면 맨 위라 아래 절반만 보이고 천천히 돌며, 마우스 근처 도트는 밀려나며 밝게 빛남
-     - 제목 "바이브 코딩 백과사전"은 원자와 검색창 사이. 안의 입문용 교과서 이름은 그대로 "바이브 코딩 교과서"
-     - 가운데: 챕터·용어 검색(`IDX` = Part · 챕터 · `DETAIL` 용어). 결과를 누르면 해당 슬라이드/상세 팝업으로 이동
-     - 아래: 큰 원 둘레를 도는 수준별 교과서 `BOOKS`(입문/초보자/중수/전문가). 지금은 입문용만 `ready`, 나머지는 준비 중
+     - 제목 "바이브 코딩 백과사전"은 원자와 검색창 사이
+     - 가운데: 챕터·용어 검색(`IDX` = 모든 권의 Part · 챕터 · 용어, 태그 `L1`/`L2`). 결과를 누르면 그 권을 펼쳐 해당 슬라이드/상세 팝업으로 이동
+     - 아래: 큰 원 둘레를 도는 수준별 교과서 `BOOKS`(입문/초보자/중수/전문가). `ready`이면 `book`의 교과서가 열린다. 중수 · 전문가는 준비 중
      - 배경: 은은한 신경망 모션(canvas `#bgCv`). 홈은 스크롤 없이 한 화면 고정
+
+## 초보자용 진행 상황
+
+- 확정한 구성: 4단계 · 9 Part · 39 챕터, 앱 하나(AI 요약 메모장)를 v1~v4로 키운다. 도구는 Claude Code · React(Vite) · Supabase · Vercel · Claude API
+- 완료: 1단계(Part 00 시작하기, 01 AI에게 작업대 맡기기, 02 안전망: Git)
+- 남은 Part: 03 v1 첫 화면과 첫 배포(5) · 04 v2 데이터 저장(5) · 05 v3 로그인과 내 데이터(4) · 06 v4 AI 요약(5) · 07 막혔을 때(5) · 08 졸업 프로젝트(4)
+- 설치 명령, 권한 모드, 요금처럼 바뀌는 내용은 쓰기 전에 공식 문서로 확인한다
 
 ## 사용자 선호 (꼭 지킬 것)
 
@@ -46,6 +58,6 @@ document.querySelectorAll('svg.fg').forEach(sv=>{
     if(Math.min(A.x+A.width,B.x+B.width)-Math.max(A.x,B.x)>1&&Math.min(A.y+A.height,B.y+B.height)-Math.max(A.y,B.y)>2)
       console.log(sv.getAttribute('aria-label'),ts[a].t,'×',ts[b].t);}
 });
-// 상세 팝업이 스크롤 없이 들어가는지
-PARTS.forEach((p,i)=>p.lessons.forEach((l,j)=>{const k=`${i}-${j+1}`;openD(k);const b=document.getElementById('dlgB');if(b.scrollHeight>b.clientHeight+2)console.log('overflow',k);}));
+// 상세 팝업이 스크롤 없이 들어가는지 (권마다: loadBook('intro') / loadBook('novice') 후 실행)
+PARTS.forEach((p,i)=>!p.todo&&p.lessons.forEach((l,j)=>{const k=`${i}-${j+1}`;openD(k);const b=document.getElementById('dlgB');if(b.scrollHeight>b.clientHeight+2)console.log('overflow',k);}));
 ```
