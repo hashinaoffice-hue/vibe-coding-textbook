@@ -34,8 +34,10 @@
 ## 초보자용 진행 상황
 
 - 확정한 구성: 4단계 · 9 Part · 39 챕터, 앱 하나(AI 요약 메모장)를 v1~v4로 키운다. 도구는 Claude Code · React(Vite) · Supabase · Vercel · Claude API
-- 완료: 1단계(Part 00 시작하기, 01 AI에게 작업대 맡기기, 02 안전망: Git), 2단계(Part 03 v1 첫 화면과 첫 배포, 04 v2 데이터 저장)
-- 남은 Part: 05 v3 로그인과 내 데이터(4) · 06 v4 AI 요약(5) · 07 막혔을 때(5) · 08 졸업 프로젝트(4)
+- 완료: 1단계(Part 00~02), 2단계(Part 03 v1 첫 화면과 첫 배포, 04 v2 데이터 저장), 3단계(Part 05 v3 로그인과 내 데이터, 06 v4 AI 요약 기능)
+- 남은 Part: 07 막혔을 때(5) · 08 졸업 프로젝트(4)
+- v3: 매직 링크 로그인, user_id 칸 + RLS(`(select auth.uid()) = user_id`), 계정 두 개로 직접 시험, Site URL · Redirect URLs (Supabase 문서 기준)
+- v4: 화면 → Vercel `api` 폴더 서버 함수 → Claude API. 키는 `ANTHROPIC_API_KEY`(VITE_ 금지), 공식 SDK `@anthropic-ai/sdk`. 모델 이름은 교재에 박지 않고 "공식 문서 최신 목록에서 확인"으로 안내. 비용은 Console 워크스페이스 사용 한도 + 입력 길이 제한 + 요청 횟수 제한 세 겹. 로컬에서 api 함수는 `vercel dev`로 시험
 - v2는 로그인이 없어 RLS 임시 규칙으로 누구나 읽고 쓰게 열어 둔다고 가르친다. v3(Part 05)에서 user_id 칸 추가 + 내 데이터만 보이는 RLS로 반드시 닫는다
 - Supabase 키는 새 방식(공개 키 sb_publishable_, 비밀 키 sb_secret_), 환경 변수 이름은 VITE_SUPABASE_URL · VITE_SUPABASE_PUBLISHABLE_KEY (Supabase React 빠른 시작 문서 기준)
 - 그림을 만들 때 상자(배경 채움)를 글자보다 먼저 그린다. 나중에 그리면 글자를 덮는다
