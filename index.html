@@ -211,6 +211,11 @@ mark{background:linear-gradient(transparent 56%,var(--mark) 56%);color:inherit;p
 .gl li:last-child{border-bottom:0;padding-bottom:0}
 .gl .r1{display:flex;flex-wrap:wrap;align-items:center;gap:8px 14px}
 .gl code{font:500 19px/1 var(--f-mono);padding:7px 10px;border-radius:6px;background:var(--chip);color:var(--ink)}
+/* 검색에서 넘어왔을 때 찾은 곳을 잠깐 반짝여요 */
+.flash{animation:flashT .7s ease-in-out 3}
+@keyframes flashT{50%{color:var(--ok);text-shadow:0 0 24px var(--ok-soft)}}
+.gl code.flash{animation-name:flashC}
+@keyframes flashC{50%{color:var(--ok);background:var(--ok-soft);box-shadow:0 0 0 2px var(--ok)}}
 .gl .rd{font-size:19px;font-weight:500;color:var(--accent)}
 .gl .og{font:400 16px/1.4 var(--f-mono);color:var(--muted)}
 .gl .mn{display:block;font-size:19px;line-height:1.55;color:var(--ink-2);margin-top:8px}
@@ -1940,12 +1945,24 @@ function show(v){
   homeLoop();
 }
 // 교과서를 펼쳐요. key는 슬라이드 키(p3 등), off는 그 Part 안에서 몇 번째 슬라이드인지
-function enterBook(id, key, off, detail){
+function enterBook(id, key, off, detail, fl){
   loadBook(id);
   show('book');
   if(key!=null && key in firstOf) go(firstOf[key]+(off||0));
   if(detail) openD(detail);
   if(location.hash!=='#'+B.hash) location.hash=B.hash;
+  if(fl) setTimeout(()=>flashAt(fl),200);
+}
+// 검색에서 고른 것(Part 제목, 챕터 제목, 용어)을 다른 색으로 잠깐 반짝여요
+function flashAt(fl){
+  let el=null;
+  if(fl==='part') el=els[cur].querySelector('h2.st');
+  else if(fl==='lesson') el=document.getElementById('dlgT');
+  else el=[...dlgB.querySelectorAll('.gl code')].find(c=>c.textContent===fl.term);
+  clearTimeout(flashAt.t); document.querySelectorAll('.flash').forEach(e=>e.classList.remove('flash'));
+  if(!el) return;
+  void el.offsetWidth; el.classList.add('flash');
+  flashAt.t=setTimeout(()=>el.classList.remove('flash'),2200);
 }
 // #book = 입문용, #novice = 초보자용. 예전 링크(#p3 등)는 입문용 슬라이드로 열어요
 function routeHash(){
@@ -1964,14 +1981,14 @@ Object.values(BOOKDATA).forEach(bk=>{
   const seen=new Set();
   bk.parts.forEach((p,i)=>{
     if(!ready(p)) return;
-    IDX.push({tg:`${bk.lv} P${pad(i)}`, tt:p.title, sb:`${bk.name} · 챕터 ${p.lessons.length}개`, hay:p.title+' '+p.short, go:()=>enterBook(bk.id,'p'+i,0)});
+    IDX.push({tg:`${bk.lv} P${pad(i)}`, tt:p.title, sb:`${bk.name} · 챕터 ${p.lessons.length}개`, hay:p.title+' '+p.short, go:()=>enterBook(bk.id,'p'+i,0,null,'part')});
     p.lessons.forEach((l,j)=>{
-      const key=`${i}-${j+1}`, at=()=>enterBook(bk.id,'p'+i,1,key);
-      IDX.push({tg:`${bk.lv} ${key}`, tt:l[0], sb:l[1], hay:[l[0],l[1],...(l[2]||[])].join(' '), go:at});
+      const key=`${i}-${j+1}`;
+      IDX.push({tg:`${bk.lv} ${key}`, tt:l[0], sb:l[1], hay:[l[0],l[1],...(l[2]||[])].join(' '), go:()=>enterBook(bk.id,'p'+i,1,key,'lesson')});
       ((bk.detail[key]||{}).t||[]).forEach(([term,r,m])=>{
         if(seen.has(term)) return; seen.add(term);
         const [og,rd]=r.includes('|')?r.split('|'):['',r];
-        IDX.push({tg:`${bk.lv} 용어`, tt:term+(og?` · ${og}`:''), sb:m, hay:[term,og,rd].join(' '), go:at});
+        IDX.push({tg:`${bk.lv} 용어`, tt:term+(og?` · ${og}`:''), sb:m, hay:[term,og,rd].join(' '), go:()=>enterBook(bk.id,'p'+i,1,key,{term})});
       });
     });
   });
