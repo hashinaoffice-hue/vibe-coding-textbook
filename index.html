@@ -1,4 +1,4 @@
-<title>바이브 코딩 교과서</title>
+<title>바이브 코딩 백과사전</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Hahmlet:wght@500;600&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans+KR:wght@400;500;600&display=swap">
@@ -296,7 +296,7 @@ mark{background:linear-gradient(transparent 56%,var(--mark) 56%);color:inherit;p
 .disc.top{width:calc(var(--H)*.74);height:calc(var(--H)*.74);top:calc(var(--H)*-.37);overflow:hidden;background:var(--bg)}
 .disc.top canvas{inset:0;width:100%;height:100%}
 .disc.bot{width:calc(var(--H)*.72);height:calc(var(--H)*.72);top:calc(var(--H)*.72);background:var(--bg)}
-.ttl{position:absolute;left:50%;top:calc(var(--H)*.215);transform:translateX(-50%);text-align:center;pointer-events:none;white-space:nowrap}
+.ttl{position:absolute;left:50%;top:calc(var(--H)*.435 - 10px);transform:translate(-50%,-50%);text-align:center;pointer-events:none;white-space:nowrap}
 .ttl .k{font:500 11px/1 var(--f-mono);letter-spacing:.12em;color:var(--muted)}
 .ttl h1{font:600 28px/1.3 var(--f-display);margin:12px 0 0;letter-spacing:-.005em}
 .ttl h1 span{color:var(--accent)}
@@ -345,12 +345,13 @@ mark{background:linear-gradient(transparent 56%,var(--mark) 56%);color:inherit;p
 
 @media (prefers-reduced-motion: reduce){ .cap.swap{animation:none} .sbox{transition:none} }
 @media (max-width:560px){ .sbox .kb{display:none} .ttl h1{font-size:24px} }
+@media (max-height:640px){ .ttl .k{display:none} .ttl h1{margin:0;font-size:24px} }
 </style>
 
 <div class="home" id="home" hidden>
   <canvas id="bgCv" aria-hidden="true"></canvas>
   <div class="disc top" id="dotDisc"><canvas id="dotCv" aria-hidden="true"></canvas></div>
-  <div class="ttl"><div class="k">VIBE CODING TEXTBOOK</div><h1>바이브 코딩 <span>교과서</span></h1></div>
+  <div class="ttl"><div class="k">VIBE CODING ENCYCLOPEDIA</div><h1>바이브 코딩 <span>백과사전</span></h1></div>
   <div class="hbar"><button class="hbtn" id="hModeBtn" type="button"></button></div>
   <div class="srch" role="search">
     <label class="sbox" for="q"><svg class="ic" viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.5"/><path d="M20 20l-4.2-4.2"/></svg><input id="q" type="search" autocomplete="off" placeholder="챕터나 용어를 찾아보세요" aria-label="챕터나 용어 검색" aria-controls="qRes" aria-expanded="false"><span class="kb">/</span></label>
@@ -1417,12 +1418,13 @@ function placeOrbs(){
   }
 }
 
-/* ---------- 홈: 색, 도트 원, 배경 ---------- */
+/* ---------- 홈: 색, 원자 도트, 배경 ---------- */
 const hex=v=>{ v=v.trim().replace('#',''); if(v.length===3) v=[...v].map(c=>c+c).join(''); const n=parseInt(v,16); return [n>>16&255,n>>8&255,n&255]; };
 let C={};
 function homeColors(){
   const cs=getComputedStyle(document.documentElement);
   C={ac:hex(cs.getPropertyValue('--accent')), dot:hex(cs.getPropertyValue('--line-2')), ink:hex(cs.getPropertyValue('--muted')), light:document.documentElement.getAttribute('data-mode')==='light'};
+  C.hi = C.light ? C.ac : hex(cs.getPropertyValue('--ink'));
 }
 const rgba=(c,a)=>`rgba(${c[0]},${c[1]},${c[2]},${a})`;
 const mix=(a,b,t)=>[0,1,2].map(i=>Math.round(a[i]+(b[i]-a[i])*t));
@@ -1430,21 +1432,14 @@ document.addEventListener('vc-mode',homeColors);
 
 const dotCv=document.getElementById('dotCv'), dctx=dotCv.getContext('2d'), dotDisc=document.getElementById('dotDisc');
 const bgCv=document.getElementById('bgCv'), bctx=bgCv.getContext('2d');
-let dots=[], ttlBox=null, dR=0, nodes=[], ptr={x:-1e4,y:-1e4};
+let atom=null, dR=0, nodes=[], ptr={x:-1e4,y:-1e4};
 function homeResize(){
   if(view!=='home') return;
   const dpr=Math.min(devicePixelRatio||1,2), W=homeEl.clientWidth, H=homeEl.clientHeight;
   bgCv.width=W*dpr; bgCv.height=H*dpr; bctx.setTransform(dpr,0,0,dpr,0,0);
   const d=dotDisc.clientWidth; dR=d/2;
   dotCv.width=d*dpr; dotCv.height=d*dpr; dctx.setTransform(dpr,0,0,dpr,0,0);
-  const top=dotDisc.getBoundingClientRect().top, g=Math.max(12,Math.round(H/64));
-  dots=[];
-  for(let y=g/2; y<d; y+=g) for(let x=g/2; x<d; x+=g){
-    const dx=x-dR, dy=y-dR, r=Math.hypot(dx,dy);
-    if(r<dR-g*.6 && top+y>-g) dots.push({x,y,r,s:0});
-  }
-  const tb=document.querySelector('.ttl').getBoundingClientRect(), db=dotDisc.getBoundingClientRect();
-  ttlBox={x:tb.left-db.left+tb.width/2, y:tb.top-db.top+tb.height/2, rx:tb.width/2+28, ry:tb.height/2+20};
+  buildAtom(H);
   const n=Math.round(Math.max(28,Math.min(80,W*H/24000)));
   nodes=Array.from({length:n},()=>({x:Math.random()*W, y:Math.random()*H, vx:(Math.random()-.5)*.25, vy:(Math.random()-.5)*.25, e:0}));
   placeOrbs();
@@ -1452,21 +1447,71 @@ function homeResize(){
 homeEl.addEventListener('pointermove',e=>{ const b=dotDisc.getBoundingClientRect(); ptr={x:e.clientX-b.left, y:e.clientY-b.top}; });
 homeEl.addEventListener('pointerleave',()=>{ ptr={x:-1e4,y:-1e4}; });
 
-function drawDots(t,dt){
-  const d=dR*2; dctx.clearRect(0,0,d,d);
-  const k1=Math.min(1,dt*10), k2=Math.min(1,dt*2.5);
-  for(const p of dots){
-    const md=Math.hypot(p.x-ptr.x,p.y-ptr.y), tg=md<120?Math.pow(1-md/120,2):0;
-    p.s+=(tg-p.s)*(tg>p.s?k1:k2);
-    const wave=reduce?.5:Math.sin(p.r*.035-t*1.1)*.5+.5;
-    let a=Math.max(.55+wave*.35,p.s), fade=1;
-    if(ttlBox){ const ex=(p.x-ttlBox.x)/ttlBox.rx, ey=(p.y-ttlBox.y)/ttlBox.ry, q=ex*ex+ey*ey; if(q<1.6) fade=Math.max(.12,q-.6); }
-    a*=fade;
-    const rad=1.1+wave*.35+p.s*3.4;
-    if(p.s>.04){ dctx.fillStyle=rgba(C.ac,p.s*.16*fade); dctx.beginPath(); dctx.arc(p.x,p.y,rad*3,0,7); dctx.fill(); }
-    dctx.fillStyle=rgba(mix(C.dot,C.ac,Math.min(1,p.s*1.4)),a);
-    dctx.beginPath(); dctx.arc(p.x,p.y,rad,0,7); dctx.fill();
+/* 원자: 피보나치 구 위의 미세 도트(핵) + 기울어진 궤도 3개 + 궤도를 도는 전자 */
+const RINGS=[0,Math.PI/3,-Math.PI/3], TILT=.32;
+function buildAtom(H){
+  const R=H*.105, pts=[], N=1100;
+  for(let i=0;i<N;i++){
+    const y=1-2*(i+.5)/N, r=Math.sqrt(1-y*y), th=i*2.39996323;
+    pts.push({ring:-1, x:Math.cos(th)*r, y, z:Math.sin(th)*r, ph:Math.random()*6.283, amp:.02+Math.random()*.06, sp:1.2+Math.random()*2.4, s:0});
   }
+  RINGS.forEach((_,k)=>{ for(let j=0;j<130;j++) pts.push({ring:k, a:j/130*6.283, ph:Math.random()*6.283, s:0}); });
+  atom={R, Ro:R*1.75, cy:dR+H*.175, pts};
+}
+function ringPos(k,a,t){
+  const r=atom.Ro, x=Math.cos(a)*r, z0=Math.sin(a)*r, y=-z0*Math.sin(TILT), z=z0*Math.cos(TILT), rz=RINGS[k]+t*.08;
+  return [x*Math.cos(rz)-y*Math.sin(rz), x*Math.sin(rz)+y*Math.cos(rz), z];
+}
+function drawDots(t,dt){
+  if(!atom) return;
+  const d=dR*2, cx=dR, cy=atom.cy, R=atom.R, f=R*6, glow=[];
+  dctx.clearRect(0,0,d,d);
+  if(reduce) t=0;
+  const k1=Math.min(1,dt*12), k2=Math.min(1,dt*2.2);
+  const ry=t*.45, cY=Math.cos(ry), sY=Math.sin(ry), tx=.4+Math.sin(t*.3)*.08, cX=Math.cos(tx), sX=Math.sin(tx);
+  // 핵 안쪽의 은은한 빛
+  const g=dctx.createRadialGradient(cx,cy,0,cx,cy,R*1.5);
+  g.addColorStop(0,rgba(C.ac,.10+.04*Math.sin(t*1.6))); g.addColorStop(1,rgba(C.ac,0));
+  dctx.fillStyle=g; dctx.fillRect(cx-R*1.5,cy-R*1.5,R*3,R*3);
+  const proj=(x,y,z,p,dn,base)=>{
+    const sc=f/(f-z); let X=cx+x*sc, Y=cy+y*sc;
+    const md=Math.hypot(X-ptr.x,Y-ptr.y), tg=md<110?Math.pow(1-md/110,2):0;
+    p.s+=(tg-p.s)*(tg>p.s?k1:k2);
+    if(p.s>.01 && md>.5){ X+=(X-ptr.x)/md*p.s*14; Y+=(Y-ptr.y)/md*p.s*14; }
+    const col=mix(mix(C.dot,C.ac,base+.45*dn),C.hi,p.s*.65);
+    const a=Math.max((p.ring<0?.16:.1)+(p.ring<0?.72:.45)*dn, p.s);
+    const rad=(p.ring<0?.45+.75*dn:.5+.45*dn)*(sc)+p.s*2.4;
+    dctx.fillStyle=rgba(col,a.toFixed(3)); dctx.beginPath(); dctx.arc(X,Y,rad,0,6.283); dctx.fill();
+    if(p.s>.04) glow.push([X,Y,p.s]);
+  };
+  for(const p of atom.pts){
+    if(p.ring<0){
+      const k=R*(1+p.amp*Math.sin(t*p.sp+p.ph));
+      let x=p.x*k, y=p.y*k, z=p.z*k;
+      [x,z]=[x*cY+z*sY, -x*sY+z*cY];
+      [y,z]=[y*cX-z*sX, y*sX+z*cX];
+      proj(x,y,z,p,(z/R+1)/2,.25);
+    } else {
+      const [x,y,z]=ringPos(p.ring,p.a+t*.3*(p.ring===1?-1:1),t);
+      proj(x,y,z,p,(z/atom.Ro+1)/2,.35);
+    }
+  }
+  // 전자: 궤도마다 하나, 꼬리를 남기며 돌아요
+  RINGS.forEach((_,k)=>{
+    const dir=k===1?-1:1, a0=t*1.5*dir+k*2.1;
+    for(let i=7;i>=0;i--){
+      const [x,y,z]=ringPos(k,a0-dir*i*.07,t), sc=f/(f-z), X=cx+x*sc, Y=cy+y*sc, al=(1-i/8)*(.45+.4*(z/atom.Ro+1)/2);
+      dctx.fillStyle=rgba(i?C.ac:mix(C.ac,C.hi,.5),al.toFixed(3)); dctx.beginPath(); dctx.arc(X,Y,(i?1.4:2.4)*sc*(1-i/12),0,6.283); dctx.fill();
+      if(!i) glow.push([X,Y,.45]);
+    }
+  });
+  // 호버한 도트는 더해지는 빛으로 밝게
+  dctx.globalCompositeOperation=C.light?'source-over':'lighter';
+  for(const [X,Y,s] of glow){
+    dctx.fillStyle=rgba(C.ac,(s*(C.light?.10:.16)).toFixed(3)); dctx.beginPath(); dctx.arc(X,Y,3+s*10,0,6.283); dctx.fill();
+    dctx.fillStyle=rgba(C.light?C.ac:mix(C.ac,C.hi,.5),(s*(C.light?.22:.38)).toFixed(3)); dctx.beginPath(); dctx.arc(X,Y,1.5+s*4,0,6.283); dctx.fill();
+  }
+  dctx.globalCompositeOperation='source-over';
 }
 function drawBg(t,dt){
   const W=homeEl.clientWidth, H=homeEl.clientHeight;
