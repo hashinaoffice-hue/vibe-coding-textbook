@@ -331,7 +331,7 @@ mark{background:linear-gradient(transparent 56%,var(--mark) 56%);color:inherit;p
 .orb.front{box-shadow:0 0 0 6px var(--accent-soft),0 0 48px var(--accent-soft)}
 .orb.front:not(.ready){box-shadow:0 0 0 6px var(--chip)}
 .orb:focus-visible{outline-offset:6px;border-radius:50%}
-.cap{position:absolute;left:50%;top:calc(var(--H)*.865);transform:translateX(-50%);width:min(360px,calc(100vw - 32px));text-align:center;display:grid;gap:4px}
+.cap{position:absolute;left:50%;top:calc(var(--H)*.85);transform:translateX(-50%);width:min(360px,calc(100vw - 32px));text-align:center;display:grid;gap:4px}
 .cap .t{font-size:14px;font-weight:500}
 .cap .d{font-size:12px;color:var(--muted)}
 .cap .dots{display:flex;justify-content:center;gap:8px;margin-top:8px}
@@ -1388,7 +1388,7 @@ let phase=0, target=0, hold=false, lastSwitch=performance.now(), capFor=-1;
 function relOf(n){ let r=mod(n-phase,POOL); if(r>=POOL/2) r-=POOL; return r; }
 let reduce=false; try{ reduce=matchMedia('(prefers-reduced-motion: reduce)').matches; }catch(e){}
 function placeOrbs(){
-  const W=homeEl.clientWidth, H=homeEl.clientHeight, cx=W/2, cy=H*1.08, R=H*.36, D=H*.23;
+  const W=homeEl.clientWidth, H=homeEl.clientHeight, cx=W/2, cy=H*1.08, R=H*.36, D=H*.2;
   orbEls.forEach((e,n)=>{
     const rel=relOf(n), a=Math.abs(rel), k=Math.min(a,3), f=Math.floor(k), sz=SIZE[f]+(SIZE[Math.min(f+1,3)]-SIZE[f])*(k-f);
     const ang=rel*STEP, x=cx+R*Math.sin(ang), y=cy-R*Math.cos(ang);
