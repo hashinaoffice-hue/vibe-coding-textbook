@@ -1742,7 +1742,7 @@ const MFIG = {
     H.forEach(([i,[t0,t1]])=>{ s+=`<rect x="${B[i][0]}" y="190" width="80" height="44" rx="8" class="hl">${vis(t0+.005,t1,D)}</rect>`; });
     B.forEach(([x,a,b])=>{ s+=`<text x="${x+40}" y="208" class="c b">${a}</text><text x="${x+40}" y="223" class="c sm mono" style="font-size:8.5px">${b}</text>`; });
     s+=arrow(98,212,110,212)+arrow(194,212,206,212)+arrow(290,212,302,212);
-    s+=`<path d="M248,236 C248,256 152,256 152,240" class="ln"/><path d="M152,236 L148.5,243 L155.5,243 Z" class="ah"/>`;
+    s+=`<path d="M248,234 C248,258 152,258 152,242" class="ln"/><path d="M152,235 L148,243 L156,243 Z" class="ah"/>`;
     s+=`<g>${vis(.14,.5,D)}<circle cx="186" cy="194" r="8" class="warnf"/><path d="M183,191 l6,6 M189,191 l-6,6" class="onacs"/></g>`;
     s+=`<g>${vis(.55,.97,D)}<circle cx="186" cy="194" r="8" class="acf"/><path d="M182.5,194 l2.5,2.5 l4.5,-5" class="onacs"/></g>`;
     s+=`<text x="200" y="280" class="c sm">실행하기 전에 타입 검사가 실수를 먼저 잡아요</text>`;
