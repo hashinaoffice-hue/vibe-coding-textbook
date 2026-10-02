@@ -72,11 +72,11 @@
 
 ## 전문가용 진행 상황
 
-- 확정한 구성: 4단계 · 10 Part(00~09) · 44 챕터 · 약 30시간 + 졸업 1–2주. 두 갈래: 팀이 Claude Code를 함께 쓰는 흐름 + 제품 속 에이전트. 실전서의 팀 메모 서비스에 AI 팀 비서(v9~v11). Claude Code 중심으로 설명
-  - 1단계 팀의 작업대: 00 전문가의 일(3) · 01 팀의 AI 규칙(5) · 02 꼭 지킬 것은 훅으로(4)
+- 확정한 구성: 4단계 · 10 Part(00~09) · 44 챕터 · 약 30시간 + 졸업 1–2주. 두 갈래: 나 혼자 + AI 여러 개를 팀처럼 굴리는 흐름(사람 팀은 '나중에 동료가 생겨도 그대로 통해요' 정도로만) + 제품 속 에이전트. 사람 팀(팀원 · 민지 같은 인물)을 전제로 쓰지 않는다. 실전서의 팀 메모 서비스에 AI 팀 비서(v9~v11). Claude Code 중심으로 설명
+  - 1단계 AI 팀의 작업대: 00 전문가의 일(3) · 01 모든 AI가 같은 규칙으로(5) · 02 꼭 지킬 것은 훅으로(4)
   - 2단계 병렬로 일하기: 03 여러 AI를 동시에(5: worktree, 서브에이전트 등) · 04 CI 속의 AI(5: `claude -p`, GitHub Actions, 자동 리뷰) · 05 큰 변경 다루기(4: 대규모 마이그레이션, 기능 플래그, 단계적 출시)
   - 3단계 제품 속 에이전트: 06 v9 도구를 쓰는 AI(5) · 07 v10 MCP로 연결(4) · 08 v11 에이전트의 품질과 안전(5)
-  - 4단계 조직에 심기: 09 졸업 프로젝트: 팀에 도입하기(4: 측정, 교육, 거버넌스)
+  - 4단계 내 체계로: 09 졸업 프로젝트: 나의 AI 개발 체계(4: 정리, 측정, 동료가 생겼을 때)
 - 완료: 1단계(Part 00~02)
 - Part 01(공식 문서 기준): 설정 우선순위 managed → 명령줄 → `.claude/settings.local.json` → `.claude/settings.json`(커밋) → `~/.claude/settings.json`. 권한은 deny → ask → allow 순서, `Bash(npm run *)`, `Read(./.env)`. `.claude/rules` + `paths`, 팀 스킬(`disable-model-invocation: true`), 플러그인(`.claude-plugin/plugin.json`, `/plugin`, 마켓플레이스)
 - Part 02: 훅은 settings.json의 `hooks`, `PostToolUse` + matcher `Edit|Write`로 포매터, `PreToolUse`에서 stderr + `exit 2`로 막기(훅이 허락해도 deny 규칙은 막음), `/hooks`, `claude --debug`, 샌드박스 `/sandbox`
