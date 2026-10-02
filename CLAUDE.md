@@ -13,7 +13,7 @@
 
 ## 파일 구조
 
-`index.html` 하나에 모든 것이 들어 있다. 교과서는 여러 권이고(입문용 · 초보자용 · 중수용 완성, 전문가용 작성 중), 같은 엔진으로 그린다. 위에서부터:
+`index.html` 하나에 모든 것이 들어 있다. 교과서는 네 권이고(입문용 · 초보자용 · 중수용 · 전문가용 모두 완성), 같은 엔진으로 그린다. 위에서부터:
 
 1. `<style>` — 디자인 토큰(`:root` = 다크 기본, `:root[data-mode="light"]` = 라이트), 앱 틀(실제 px), 슬라이드(1920×1080 단위), 상세 팝업, SVG 그림 클래스, 홈, 여러 권 공통(준비 중 · 깊이 표시 `.dp` · 실습 슬라이드 `.px`)
 2. 첫 번째 `<script>` — `DETAIL1`: 입문용 챕터별 상세 팝업 내용. 키는 `"Part-챕터"`(예: `"1-4"`)
@@ -95,7 +95,7 @@
   - 2단계 병렬로 일하기: 03 여러 AI를 동시에(5: worktree, 서브에이전트 등) · 04 CI 속의 AI(5: `claude -p`, GitHub Actions, 자동 리뷰) · 05 큰 변경 다루기(4: 대규모 마이그레이션, 기능 플래그, 단계적 출시)
   - 3단계 제품 속 에이전트: 06 v9 도구를 쓰는 AI(5) · 07 v10 MCP로 연결(4) · 08 v11 에이전트의 품질과 안전(5)
   - 4단계 내 체계로: 09 졸업 프로젝트: 나의 AI 개발 체계(4: 정리, 측정, 동료가 생겼을 때)
-- 완료: 1단계(Part 00~02), 2단계(Part 03~05), 3단계(Part 06~08)
+- 완료: 전체 4단계 · 10 Part · 44 챕터. 1단계(Part 00~02), 2단계(Part 03~05), 3단계(Part 06~08), 4단계(Part 09)
 - Part 01(공식 문서 기준): 설정 우선순위 managed → 명령줄 → `.claude/settings.local.json` → `.claude/settings.json`(커밋) → `~/.claude/settings.json`. 권한은 deny → ask → allow 순서, `Bash(npm run *)`, `Read(./.env)`. `.claude/rules` + `paths`, 팀 스킬(`disable-model-invocation: true`), 플러그인(`.claude-plugin/plugin.json`, `/plugin`, 마켓플레이스)
 - Part 02: 훅은 settings.json의 `hooks`, `PostToolUse` + matcher `Edit|Write`로 포매터, `PreToolUse`에서 stderr + `exit 2`로 막기(훅이 허락해도 deny 규칙은 막음), `/hooks`, `claude --debug`, 샌드박스 `/sandbox`
 - Part 03(공식 문서 기준): `claude --worktree 이름` → `.claude/worktrees/이름`, 브랜치 `worktree-이름`, `.claude/worktrees/`는 .gitignore, `.env`는 `.worktreeinclude`, 작업대마다 npm install. 서브에이전트 `.claude/agents/*.md`(name · description · tools). 백그라운드 `claude --bg`, `/background`, `claude agents`(agent view, research preview). 검토는 새 세션에서 `/code-review [PR번호]`
@@ -104,6 +104,8 @@
 - Part 06 v9(Claude API 공식 문서 기준): 도구 `name` · `description` · `input_schema`(`strict: true`), `stop_reason: "tool_use"` → 서버 실행 → `tool_result`(`tool_use_id`, 실패 시 `is_error: true`, user 메시지 맨 앞). Tool Runner(베타) `client.beta.messages.toolRunner` + `max_iterations`, 승인을 끼우려면 직접 반복. 도구 `search_notes` · `get_note` · `create_todo`, 사용자 세션으로 실행(RLS), 근거 노트 함께 답
 - Part 07 v10: Claude Code `claude mcp add --transport http 이름 주소`, `/mcp`, `--scope project` → `.mcp.json`. Claude API MCP 연결(베타, `mcp_servers` + `mcp_toolset`, `default_config: { enabled: false }` + `configs`로 허용 목록), 원격 HTTP 서버만 · 도구만 · OAuth 토큰은 내가 받아 `authorization_token`. 내 서비스를 MCP 서버로(공식 SDK `registerTool`, SDK 버전은 공식 문서 최신)
 - Part 08 v11: 바꾸는 도구는 승인 카드, 사용자 세션 + RLS(비밀 키 금지), 프롬프트 인젝션(남의 글은 tool_result 안에만, 속아도 피해가 작게), 평가 세트 `evals/assistant.json`, 비용은 반복 횟수 · 질문 길이 · 사용자별 하루 횟수 · 워크스페이스 한도
+- Part 09 졸업: 체계를 `docs/ai-workflow.md` 한 장으로(Part 00에서 시작), 숫자 세 개(PR 시간 · 되돌림 · AI 비용)를 `docs/metrics.md`에 기준값부터, 공통 스킬 · 에이전트 · 훅을 플러그인 `my-workflow`로, 동료가 생기면 같은 파일 위에서 + PR 검토 · 결정 기록
+- 다음 할 일: 네 권 전체를 처음부터 재검토한 뒤 새 PR로 main에 합친다(사용자가 말할 때)
 
 ## 사용자 선호 (꼭 지킬 것)
 
