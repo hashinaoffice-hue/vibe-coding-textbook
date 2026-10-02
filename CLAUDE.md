@@ -95,9 +95,12 @@
   - 2단계 병렬로 일하기: 03 여러 AI를 동시에(5: worktree, 서브에이전트 등) · 04 CI 속의 AI(5: `claude -p`, GitHub Actions, 자동 리뷰) · 05 큰 변경 다루기(4: 대규모 마이그레이션, 기능 플래그, 단계적 출시)
   - 3단계 제품 속 에이전트: 06 v9 도구를 쓰는 AI(5) · 07 v10 MCP로 연결(4) · 08 v11 에이전트의 품질과 안전(5)
   - 4단계 내 체계로: 09 졸업 프로젝트: 나의 AI 개발 체계(4: 정리, 측정, 동료가 생겼을 때)
-- 완료: 1단계(Part 00~02)
+- 완료: 1단계(Part 00~02), 2단계(Part 03~05)
 - Part 01(공식 문서 기준): 설정 우선순위 managed → 명령줄 → `.claude/settings.local.json` → `.claude/settings.json`(커밋) → `~/.claude/settings.json`. 권한은 deny → ask → allow 순서, `Bash(npm run *)`, `Read(./.env)`. `.claude/rules` + `paths`, 팀 스킬(`disable-model-invocation: true`), 플러그인(`.claude-plugin/plugin.json`, `/plugin`, 마켓플레이스)
 - Part 02: 훅은 settings.json의 `hooks`, `PostToolUse` + matcher `Edit|Write`로 포매터, `PreToolUse`에서 stderr + `exit 2`로 막기(훅이 허락해도 deny 규칙은 막음), `/hooks`, `claude --debug`, 샌드박스 `/sandbox`
+- Part 03(공식 문서 기준): `claude --worktree 이름` → `.claude/worktrees/이름`, 브랜치 `worktree-이름`, `.claude/worktrees/`는 .gitignore, `.env`는 `.worktreeinclude`, 작업대마다 npm install. 서브에이전트 `.claude/agents/*.md`(name · description · tools). 백그라운드 `claude --bg`, `/background`, `claude agents`(agent view, research preview). 검토는 새 세션에서 `/code-review [PR번호]`
+- Part 04: `claude -p`(파이프, 종료 코드, `--allowedTools`, CI는 `--bare` + `ANTHROPIC_API_KEY`), `--output-format text|json|stream-json`, `--json-schema` → `structured_output`. `/install-github-app`(관리자 권한, gh 로그인, Secret `ANTHROPIC_API_KEY`), `@claude`는 쓰기 권한 있는 사람만, 리뷰 워크플로는 CLAUDE.md를 읽음. 제한: `claude_args`의 `--max-turns`, `timeout-minutes`, `concurrency`. 기본 `GITHUB_TOKEN` 커밋은 CI를 안 깨움
+- Part 05: `/batch <지시>`(5~30개 단위로 나눠 계획 → 승인 → 단위마다 worktree에서 구현 · 테스트 · PR, git 저장소 필요). 표 변경은 늘리기 → 옮기기 → 줄이기(todos.who → assignee_id). 기능 플래그는 Supabase `feature_flags` 표 + RLS + 서버 함수에서도 확인, 나 → 다섯 명 → 모두, 끝나면 플래그 정리. 운영서 3단계의 AI 비서(`ai_assistant`)도 플래그로 켠다
 
 ## 사용자 선호 (꼭 지킬 것)
 
