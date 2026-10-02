@@ -57,9 +57,13 @@
   - 2단계 튼튼하게: 03 TypeScript와 폴더 구조(4) · 04 테스트와 자동 검사(6: 안전망, Vitest, Playwright, 테스트 먼저, PR로 일하기, 자동 검사와 미리보기 배포)
   - 3단계 함께 쓰기: 05 v5 팀 공간과 권한(5) · 06 v6 파일 · 실시간 · 알림(4) · 07 v7 AI 기능 다듬기(4)
   - 4단계 운영하기: 08 v8 운영과 보안(5) · 09 졸업 프로젝트: 출시(3)
-- 완료: 1단계(Part 00~02), 2단계(Part 03~04)
+- 완료: 1단계(Part 00~02), 2단계(Part 03~04), 3단계(Part 05~07)
 - Part 03: Vite는 타입 검사를 안 하므로 `npx tsc --noEmit`으로 따로 검사. 파일 하나씩 .tsx로 옮기고 조각마다 커밋. 타입 생성은 `npx supabase login` 후 `npx supabase gen types typescript --project-id ... --schema public > src/database.types.ts`, `createClient<Database>`, `Tables<'memos'>`. 기능별 폴더 `src/features/*` + `src/shared`
 - Part 04: Vitest(`npm install -D vitest`, Node 22.12 이상, `.test.` 파일), Playwright(`npm init playwright@latest`, `--ui`, `show-report`), 실패하는 테스트 먼저, PR + Rulesets(PR 필수 · 검사 통과 필수), GitHub Actions(npm ci → tsc → vitest run → build, 액션 버전은 교재에 박지 않고 공식 README 최신), Vercel 미리보기(PR 댓글, Preview 환경 변수), Supabase Redirect URLs에 `https://*-<팀>.vercel.app/**`
+- Part 05: 표 변경은 마이그레이션(`supabase migration new` → `db push`, 대시보드에서 바꿨으면 `db pull`). 팀원 확인은 security definer 함수(`search_path = ''`, private 스키마) + 정책이 쓰는 칸에 인덱스. members 규칙이 members를 읽으면 무한 반복 에러. 권한 표로 계정 세 개 시험, 정책 테스트는 `supabase/tests`
+- Supabase 기본 메일(SMTP)은 조직 팀원 주소로만 보낸다. 실제 사용자 초대 · 로그인은 SMTP 연결 필요. 알림 메일은 로그인 메일과 분리(별도 메일 발송 서비스, 서버 함수)
+- Part 06: Storage 비공개 버킷 + `storage.objects` 규칙(`storage.foldername(name)`으로 팀 폴더), 서명된 주소. Realtime은 `alter publication supabase_realtime add table memos`, RLS 적용, 대규모면 Broadcast. 목록은 `.range()`로 20개씩 + 인덱스
+- Part 07(Claude API, 공식 SDK 기준): 스트리밍 `client.messages.stream`, 구조화된 출력 `output_config.format`(예전 `output_format` 금지) · `messages.parse()`, 예시 모음 평가, `usage`(input/output/cache_read_input_tokens) 기록, 프롬프트 캐싱(앞부분 동일해야, 짧으면 안 됨)
 - 데이터 모델 이름: `teams`(id, name), `members`(team_id, user_id, role), `memos`(id, team_id, author_id, body), 사람은 `auth.users`
 - Claude Code 내용(공식 문서 기준): 계획 모드는 Shift+Tab으로 `plan mode on`, Ctrl+G로 계획 편집. `/init`, CLAUDE.md 200줄 아래, 같은 실수 두 번이면 규칙 추가. 스킬은 `.claude/skills/<이름>/SKILL.md`(예전 `.claude/commands`도 동작), 서브에이전트, `/code-review`
 
