@@ -13,7 +13,7 @@
 
 ## 파일 구조
 
-`index.html` 하나에 모든 것이 들어 있다. 교과서는 여러 권이고(지금 입문용 · 초보자용 · 중수용 완성, 전문가용 준비 중), 같은 엔진으로 그린다. 위에서부터:
+`index.html` 하나에 모든 것이 들어 있다. 교과서는 여러 권이고(입문용 · 초보자용 · 중수용 완성, 전문가용 작성 중), 같은 엔진으로 그린다. 위에서부터:
 
 1. `<style>` — 디자인 토큰(`:root` = 다크 기본, `:root[data-mode="light"]` = 라이트), 앱 틀(실제 px), 슬라이드(1920×1080 단위), 상세 팝업, SVG 그림 클래스, 홈, 여러 권 공통(준비 중 · 깊이 표시 `.dp` · 실습 슬라이드 `.px`)
 2. 첫 번째 `<script>` — `DETAIL1`: 입문용 챕터별 상세 팝업 내용. 키는 `"Part-챕터"`(예: `"1-4"`)
@@ -27,14 +27,15 @@
      - Part에 `result`, `steps`([설명, 복사할 문장?]), `stuck`([증상, 해결])가 있으면 세 번째 '실습' 슬라이드가 붙는다
      - 아직 안 쓴 Part는 `{short, title, todo:true}` — 목차와 구성에 '준비 중'으로만 보인다
    - 중수용(바이브 코딩 실전서): `MFIG`(그림 `hero`, `m0`~), `STAGES3`, `PARTS3`, `DETAIL3`, `MID`. 형식은 초보자용과 같다
-   - `BOOKDATA` — 권 목록(`intro`, `novice`, `mid`). 권마다 `stages/parts/detail/fig/cover/end/how`와 진도 · 슬라이드 저장 키가 다르다
+   - 전문가용(바이브 코딩 운영서): `EFIG`(그림 `hero`, `e0`~), `STAGES4`, `PARTS4`, `DETAIL4`, `PRO`. 형식은 같다
+   - `BOOKDATA` — 권 목록(`intro`, `novice`, `mid`, `pro`). 권마다 `stages/parts/detail/fig/cover/end/how`와 진도 · 슬라이드 저장 키가 다르다
    - 엔진: `loadBook(id)`가 슬라이드(표지 → 구성 → 단계 표지 → Part마다 개념/챕터(/실습) → 마치며), 목차, 진도를 다시 그린다. 화면 맞춤, 넘기기, 진도(localStorage), 복사(`data-copy`는 복사할 요소 id), 라이트/다크, 상세 팝업
    - 목차 사이드바 맨 아래 버튼은 [라이트/다크 모드][홈으로]. 스크롤바는 숨김(내용이 넘치면 휠로만 스크롤). 그림은 '움직임 줄이기' OS 설정일 때만 멈춤
-   - 홈(첫 화면) — `show('home'|'book')`으로 홈(`#home`)과 교과서(`.app`)를 바꾼다. 주소 해시 `#book` = 입문용, `#novice` = 초보자용, `#mid` = 중수용(권의 `hash`로 찾는다). 예전 슬라이드 키(`#p3`, `#s1` 등)는 입문용으로 열린다.
+   - 홈(첫 화면) — `show('home'|'book')`으로 홈(`#home`)과 교과서(`.app`)를 바꾼다. 주소 해시 `#book` = 입문용, `#novice` = 초보자용, `#mid` = 중수용, `#pro` = 전문가용(권의 `hash`로 찾는다). 예전 슬라이드 키(`#p3`, `#s1` 등)는 입문용으로 열린다.
      - 위: 원자 모양 도트(canvas `#dotCv`, 테두리 없음). 피보나치 구(핵) + 기울어진 궤도 3개 + 전자. 중심이 화면 맨 위라 아래 절반만 보이고 천천히 돌며, 마우스 근처 도트는 밀려나며 밝게 빛남
      - 제목 "바이브 코딩 백과사전"은 원자와 검색창 사이
-     - 가운데: 챕터·용어 검색(`IDX` = 모든 권의 Part · 챕터 · 용어, 태그 `L1`/`L2`/`L3`). 결과를 누르면 그 권을 펼쳐 해당 슬라이드/상세 팝업으로 이동
-     - 아래: 큰 원 둘레를 도는 수준별 교과서 `BOOKS`(입문/초보자/중수/전문가). `ready`이면 `book`의 교과서가 열린다. 전문가는 준비 중
+     - 가운데: 챕터·용어 검색(`IDX` = 모든 권의 Part · 챕터 · 용어, 태그 `L1`~`L4`). 결과를 누르면 그 권을 펼쳐 해당 슬라이드/상세 팝업으로 이동
+     - 아래: 큰 원 둘레를 도는 수준별 교과서 `BOOKS`(입문/초보자/중수/전문가). `ready`이면 `book`의 교과서가 열린다
      - 배경: 은은한 신경망 모션(canvas `#bgCv`). 홈은 스크롤 없이 한 화면 고정
 
 ## 초보자용 진행 상황
@@ -68,6 +69,17 @@
 - Part 09: 출시 준비(도메인 + Site URL, SMTP, 개인정보 처리방침, Supabase 출시 전 점검표, 2단계 인증), 작게 열기(다섯 명, 창구 하나), 의견을 버그 · 불편 · 기능으로 → 할 일 세 개 + 돌아보기
 - 데이터 모델 이름: `teams`(id, name), `members`(team_id, user_id, role), `memos`(id, team_id, author_id, body), 사람은 `auth.users`
 - Claude Code 내용(공식 문서 기준): 계획 모드는 Shift+Tab으로 `plan mode on`, Ctrl+G로 계획 편집. `/init`, CLAUDE.md 200줄 아래, 같은 실수 두 번이면 규칙 추가. 스킬은 `.claude/skills/<이름>/SKILL.md`(예전 `.claude/commands`도 동작), 서브에이전트, `/code-review`
+
+## 전문가용 진행 상황
+
+- 확정한 구성: 4단계 · 10 Part(00~09) · 44 챕터 · 약 30시간 + 졸업 1–2주. 두 갈래: 팀이 Claude Code를 함께 쓰는 흐름 + 제품 속 에이전트. 실전서의 팀 메모 서비스에 AI 팀 비서(v9~v11). Claude Code 중심으로 설명
+  - 1단계 팀의 작업대: 00 전문가의 일(3) · 01 팀의 AI 규칙(5) · 02 꼭 지킬 것은 훅으로(4)
+  - 2단계 병렬로 일하기: 03 여러 AI를 동시에(5: worktree, 서브에이전트 등) · 04 CI 속의 AI(5: `claude -p`, GitHub Actions, 자동 리뷰) · 05 큰 변경 다루기(4: 대규모 마이그레이션, 기능 플래그, 단계적 출시)
+  - 3단계 제품 속 에이전트: 06 v9 도구를 쓰는 AI(5) · 07 v10 MCP로 연결(4) · 08 v11 에이전트의 품질과 안전(5)
+  - 4단계 조직에 심기: 09 졸업 프로젝트: 팀에 도입하기(4: 측정, 교육, 거버넌스)
+- 완료: 1단계(Part 00~02)
+- Part 01(공식 문서 기준): 설정 우선순위 managed → 명령줄 → `.claude/settings.local.json` → `.claude/settings.json`(커밋) → `~/.claude/settings.json`. 권한은 deny → ask → allow 순서, `Bash(npm run *)`, `Read(./.env)`. `.claude/rules` + `paths`, 팀 스킬(`disable-model-invocation: true`), 플러그인(`.claude-plugin/plugin.json`, `/plugin`, 마켓플레이스)
+- Part 02: 훅은 settings.json의 `hooks`, `PostToolUse` + matcher `Edit|Write`로 포매터, `PreToolUse`에서 stderr + `exit 2`로 막기(훅이 허락해도 deny 규칙은 막음), `/hooks`, `claude --debug`, 샌드박스 `/sandbox`
 
 ## 사용자 선호 (꼭 지킬 것)
 
