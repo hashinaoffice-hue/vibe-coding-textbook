@@ -77,7 +77,7 @@
   - 3단계 함께 쓰기: 05 v5 팀 공간과 권한(5) · 06 v6 함께 쓰기 · 파일 · 검색(4: 파일 첨부, 실시간, 지난 회의 검색, 느려질 때) · 07 v7 할 일까지 챙기는 AI(4: 스트리밍, 할 일 목록으로 받기, 담당자 알림, 품질과 비용 재기)
   - 4단계 운영하기: 08 v8 운영과 보안(5) · 09 졸업 프로젝트: 출시(3)
 - 완료: 전체 4단계 · 10 Part · 44 챕터. 1단계(Part 00~02), 2단계(Part 03~04), 3단계(Part 05~07), 4단계(Part 08~09)
-- Part 03: Vite는 타입 검사를 안 하므로 `npx tsc --noEmit`으로 따로 검사. 파일 하나씩 .tsx로 옮기고 조각마다 커밋. 타입 생성은 `npx supabase login` 후 `npx supabase gen types typescript --project-id ... --schema public > src/database.types.ts`, `createClient<Database>`, `Tables<'memos'>`. 기능별 폴더 `src/features/*` + `src/shared`
+- Part 03: Vite는 타입 검사를 안 하므로 `npx tsc --noEmit`으로 따로 검사. 파일 하나씩 .tsx로 옮기고 조각마다 커밋. 타입 생성은 `npx supabase login` 후 `npx supabase gen types typescript --project-id ... --schema public > src/database.types.ts`, `createClient<Database>`, `Tables<'notes'>`. 기능별 폴더 `src/features/*` + `src/shared`
 - Part 04: Vitest(`npm install -D vitest`, Node 22.12 이상, `.test.` 파일), Playwright(`npm init playwright@latest`, `--ui`, `show-report`), 실패하는 테스트 먼저, PR + Rulesets(PR 필수 · 검사 통과 필수), GitHub Actions(npm ci → tsc → vitest run → build, 액션 버전은 교재에 박지 않고 공식 README 최신), Vercel 미리보기(PR 댓글, Preview 환경 변수), Supabase Redirect URLs에 `https://*-<팀>.vercel.app/**`
 - Part 05: 표 변경은 마이그레이션(`supabase migration new` → `db push`, 대시보드에서 바꿨으면 `db pull`). 팀원 확인은 security definer 함수(`search_path = ''`, private 스키마) + 정책이 쓰는 칸에 인덱스. members 규칙이 members를 읽으면 무한 반복 에러. 권한 표로 계정 세 개 시험, 정책 테스트는 `supabase/tests`
 - Supabase 기본 메일(SMTP)은 조직 팀원 주소로만 보낸다. 실제 사용자 초대 · 로그인은 SMTP 연결 필요. 알림 메일은 로그인 메일과 분리(별도 메일 발송 서비스, 서버 함수)
@@ -90,7 +90,7 @@
 
 ## 전문가용 진행 상황
 
-- 확정한 구성: 4단계 · 10 Part(00~09) · 44 챕터 · 약 30시간 + 졸업 1–2주. 두 갈래: 나 혼자 + AI 여러 개를 팀처럼 굴리는 흐름(사람 팀은 '나중에 동료가 생겨도 그대로 통해요' 정도로만) + 제품 속 에이전트. 사람 팀(팀원 · 민지 같은 인물)을 전제로 쓰지 않는다. 실전서의 팀 회의 노트 서비스에 AI 비서(v9~v11). Claude Code 중심으로 설명
+- 확정한 구성: 4단계 · 10 Part(00~09) · 44 챕터 · 약 25시간 + 졸업 1–2주. 두 갈래: 나 혼자 + AI 여러 개를 팀처럼 굴리는 흐름(사람 팀은 '나중에 동료가 생겨도 그대로 통해요' 정도로만) + 제품 속 에이전트. 사람 팀(팀원 · 민지 같은 인물)을 전제로 쓰지 않는다. 실전서의 팀 회의 노트 서비스에 AI 비서(v9~v11). Claude Code 중심으로 설명
   - 1단계 AI 팀의 작업대: 00 전문가의 일(3) · 01 모든 AI가 같은 규칙으로(5) · 02 꼭 지킬 것은 훅으로(4)
   - 2단계 병렬로 일하기: 03 여러 AI를 동시에(5: worktree, 서브에이전트 등) · 04 CI 속의 AI(5: `claude -p`, GitHub Actions, 자동 리뷰) · 05 큰 변경 다루기(4: 대규모 마이그레이션, 기능 플래그, 단계적 출시)
   - 3단계 제품 속 에이전트: 06 v9 도구를 쓰는 AI(5) · 07 v10 MCP로 연결(4) · 08 v11 에이전트의 품질과 안전(5)
