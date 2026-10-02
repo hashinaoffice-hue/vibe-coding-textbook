@@ -2372,13 +2372,13 @@ const EFIG = {
     return svg('기능 플래그를 켠 뒤 나, 다섯 명, 모두 순서로 넓혀 가고, 에러가 늘면 플래그만 끄는 단계적 출시', 10.2, s);
   },
   e6(){
-    const D=12, X=[60,200,340], H=[['화면',0],['api/assistant',1],['Claude',0]];
-    let s=H.map(([t,m],i)=>`<rect x="${X[i]-44}" y="20" width="88" height="28" rx="8" class="box"/><text x="${X[i]}" y="38" class="c b${m?' mono':''}" style="font-size:${m?9.5:10}px">${t}</text>`).join('');
+    const D=12, X=[68,200,332], H=[['화면',0],['api/assistant',1],['Claude',0]];
+    let s=H.map(([t,m],i)=>`<rect x="${X[i]-52}" y="20" width="104" height="28" rx="8" class="box"/><text x="${X[i]}" y="38" class="c b${m?' mono':''}" style="font-size:${m?9.5:10}px">${t}</text>`).join('');
     s+=X.map(x=>`<line x1="${x}" y1="48" x2="${x}" y2="248" class="ln dash"/>`).join('');
-    s+=`<rect x="184" y="118" width="172" height="62" rx="8" class="sk"/><g>${vis(.3,.97,D)}<text x="88" y="150" class="sm act b">반복</text><text x="88" y="164" class="sm">답이 나올 때까지</text></g>`;
+    s+=`<rect x="184" y="118" width="164" height="62" rx="8" class="sk"/><g>${vis(.3,.97,D)}<text x="168" y="150" class="e sm act b">반복</text><text x="168" y="164" class="e sm">답이 나올 때까지</text></g>`;
     const M=[[0,1,76,'지난달 결정 정리해줘',0],[1,2,108,'질문 + 도구 목록',0],[2,1,140,'tool_use · search_notes',1],[1,2,172,'tool_result · 노트 3개',1],[2,1,204,'답 + 근거',0],[1,0,236,'결정 3개 · 근거 노트',0]];
     M.forEach(([a,b,y,t,m],k)=>{ const x1=X[a]+(b>a?4:-4), x2=X[b]+(b>a?-4:4);
-      s+=`<g>${vis(.04+k*.1,.97,D)}`+arrow(x1,y,x2,y,k===2||k===3?'acs':'ln')+`<text x="${(X[a]+X[b])/2}" y="${y-6}" class="c ${m?'mono act':'i2'}" style="font-size:${m?8.5:9.5}px">${t}</text></g>`;
+      s+=`<g>${vis(.04+k*.1,.97,D)}`+arrow(x1,y,x2,y,k===2||k===3?'acs':'ln')+`<text x="${(X[a]+X[b])/2}" y="${y-6}" class="c ${m?'mono act':'i2'}" style="font-size:${m?8:9.5}px">${t}</text></g>`;
     });
     s+=`<text x="200" y="276" class="c sm">Claude는 부르겠다고 하고, 실행은 내 서버가 해요</text>`;
     return svg('화면의 질문이 서버를 거쳐 Claude에 가고, Claude가 도구를 부르면 서버가 실행해 결과를 돌려주는 반복 끝에 근거와 함께 답하는 흐름', 10.2, s);
