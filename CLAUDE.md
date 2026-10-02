@@ -105,7 +105,14 @@
 - Part 07 v10: Claude Code `claude mcp add --transport http 이름 주소`, `/mcp`, `--scope project` → `.mcp.json`. Claude API MCP 연결(베타, `mcp_servers` + `mcp_toolset`, `default_config: { enabled: false }` + `configs`로 허용 목록), 원격 HTTP 서버만 · 도구만 · OAuth 토큰은 내가 받아 `authorization_token`. 내 서비스를 MCP 서버로(공식 SDK `registerTool`, SDK 버전은 공식 문서 최신)
 - Part 08 v11: 바꾸는 도구는 승인 카드, 사용자 세션 + RLS(비밀 키 금지), 프롬프트 인젝션(남의 글은 tool_result 안에만, 속아도 피해가 작게), 평가 세트 `evals/assistant.json`, 비용은 반복 횟수 · 질문 길이 · 사용자별 하루 횟수 · 워크스페이스 한도
 - Part 09 졸업: 체계를 `docs/ai-workflow.md` 한 장으로(Part 00에서 시작), 숫자 세 개(PR 시간 · 되돌림 · AI 비용)를 `docs/metrics.md`에 기준값부터, 공통 스킬 · 에이전트 · 훅을 플러그인 `my-workflow`로, 동료가 생기면 같은 파일 위에서 + PR 검토 · 결정 기록
-- 다음 할 일: 네 권 전체를 처음부터 재검토한 뒤 새 PR로 main에 합친다(사용자가 말할 때)
+- 재검토 완료. 다음은 아래 '따라 하기 검증'을 마친 뒤 새 PR로 main에 합친다(사용자가 말할 때)
+
+## 따라 하기 검증 (진행 중)
+
+- 사용자가 학습자처럼 실습서 Part 00부터 슬라이드만 보고 자기 컴퓨터에서 직접 따라 한다. 계정 · 키 발급도 사용자가 한다
+- Claude는 대신 따라 하지 않는다. 막힌 곳 · 화면이 다른 곳 · 요청 문장이 안 먹힌 곳을 받으면 해당 슬라이드를 고치고 링크에 다시 올린다
+- 고칠 때는 공식 문서로 다시 확인하고, 고친 내용은 아래에 한 줄씩 남긴다(권 · Part · 무엇을 · 왜)
+- 기록:
 
 ## 사용자 선호 (꼭 지킬 것)
 
