@@ -13,7 +13,7 @@
 
 ## 파일 구조
 
-`index.html` 하나에 모든 것이 들어 있다. 교과서는 여러 권이고(지금 입문용 · 초보자용 · 중수용), 같은 엔진으로 그린다. 위에서부터:
+`index.html` 하나에 모든 것이 들어 있다. 교과서는 여러 권이고(지금 입문용 · 초보자용 · 중수용 완성, 전문가용 준비 중), 같은 엔진으로 그린다. 위에서부터:
 
 1. `<style>` — 디자인 토큰(`:root` = 다크 기본, `:root[data-mode="light"]` = 라이트), 앱 틀(실제 px), 슬라이드(1920×1080 단위), 상세 팝업, SVG 그림 클래스, 홈, 여러 권 공통(준비 중 · 깊이 표시 `.dp` · 실습 슬라이드 `.px`)
 2. 첫 번째 `<script>` — `DETAIL1`: 입문용 챕터별 상세 팝업 내용. 키는 `"Part-챕터"`(예: `"1-4"`)
@@ -57,13 +57,15 @@
   - 2단계 튼튼하게: 03 TypeScript와 폴더 구조(4) · 04 테스트와 자동 검사(6: 안전망, Vitest, Playwright, 테스트 먼저, PR로 일하기, 자동 검사와 미리보기 배포)
   - 3단계 함께 쓰기: 05 v5 팀 공간과 권한(5) · 06 v6 파일 · 실시간 · 알림(4) · 07 v7 AI 기능 다듬기(4)
   - 4단계 운영하기: 08 v8 운영과 보안(5) · 09 졸업 프로젝트: 출시(3)
-- 완료: 1단계(Part 00~02), 2단계(Part 03~04), 3단계(Part 05~07)
+- 완료: 전체 4단계 · 10 Part · 44 챕터. 1단계(Part 00~02), 2단계(Part 03~04), 3단계(Part 05~07), 4단계(Part 08~09)
 - Part 03: Vite는 타입 검사를 안 하므로 `npx tsc --noEmit`으로 따로 검사. 파일 하나씩 .tsx로 옮기고 조각마다 커밋. 타입 생성은 `npx supabase login` 후 `npx supabase gen types typescript --project-id ... --schema public > src/database.types.ts`, `createClient<Database>`, `Tables<'memos'>`. 기능별 폴더 `src/features/*` + `src/shared`
 - Part 04: Vitest(`npm install -D vitest`, Node 22.12 이상, `.test.` 파일), Playwright(`npm init playwright@latest`, `--ui`, `show-report`), 실패하는 테스트 먼저, PR + Rulesets(PR 필수 · 검사 통과 필수), GitHub Actions(npm ci → tsc → vitest run → build, 액션 버전은 교재에 박지 않고 공식 README 최신), Vercel 미리보기(PR 댓글, Preview 환경 변수), Supabase Redirect URLs에 `https://*-<팀>.vercel.app/**`
 - Part 05: 표 변경은 마이그레이션(`supabase migration new` → `db push`, 대시보드에서 바꿨으면 `db pull`). 팀원 확인은 security definer 함수(`search_path = ''`, private 스키마) + 정책이 쓰는 칸에 인덱스. members 규칙이 members를 읽으면 무한 반복 에러. 권한 표로 계정 세 개 시험, 정책 테스트는 `supabase/tests`
 - Supabase 기본 메일(SMTP)은 조직 팀원 주소로만 보낸다. 실제 사용자 초대 · 로그인은 SMTP 연결 필요. 알림 메일은 로그인 메일과 분리(별도 메일 발송 서비스, 서버 함수)
 - Part 06: Storage 비공개 버킷 + `storage.objects` 규칙(`storage.foldername(name)`으로 팀 폴더), 서명된 주소. Realtime은 `alter publication supabase_realtime add table memos`, RLS 적용, 대규모면 Broadcast. 목록은 `.range()`로 20개씩 + 인덱스
 - Part 07(Claude API, 공식 SDK 기준): 스트리밍 `client.messages.stream`, 구조화된 출력 `output_config.format`(예전 `output_format` 금지) · `messages.parse()`, 예시 모음 평가, `usage`(input/output/cache_read_input_tokens) 기록, 프롬프트 캐싱(앞부분 동일해야, 짧으면 안 됨)
+- Part 08: 에러 모니터링(`@sentry/react`, DSN은 공개돼도 되는 값, 소스맵 `npx @sentry/wizard@latest -i sourcemaps`), 로그와 지표(개인정보 금지), 백업(Supabase 무료 요금제는 자동 백업 없음, Pro 이상 매일 · Storage 파일은 DB 백업에 없음, `supabase db dump --db-url ... -f schema.sql` / `--use-copy --data-only`, 복구 연습은 시험용 프로젝트), 보안 점검(Security Advisor, Dependabot, 서버 입력 검사), 사고 대응(Vercel Instant Rollback, 무료 요금제는 직전 배포로만, 되돌린 동안 자동 반영 꺼짐 → Promote, 배포 되돌리기는 DB를 되돌리지 않음)
+- Part 09: 출시 준비(도메인 + Site URL, SMTP, 개인정보 처리방침, Supabase 출시 전 점검표, 2단계 인증), 작게 열기(다섯 명, 창구 하나), 의견을 버그 · 불편 · 기능으로 → 할 일 세 개 + 돌아보기
 - 데이터 모델 이름: `teams`(id, name), `members`(team_id, user_id, role), `memos`(id, team_id, author_id, body), 사람은 `auth.users`
 - Claude Code 내용(공식 문서 기준): 계획 모드는 Shift+Tab으로 `plan mode on`, Ctrl+G로 계획 편집. `/init`, CLAUDE.md 200줄 아래, 같은 실수 두 번이면 규칙 추가. 스킬은 `.claude/skills/<이름>/SKILL.md`(예전 `.claude/commands`도 동작), 서브에이전트, `/code-review`
 
