@@ -11,6 +11,12 @@
 
 `index.html`을 브라우저로 열면 됩니다. 외부에서 불러오는 것은 Google Fonts뿐입니다. 주소 끝에 `#book`을 붙이면 입문용, `#novice`는 초보자용, `#mid`는 중수용, `#pro`는 전문가용이 바로 열립니다.
 
+## 배포 (Vercel)
+
+공부용 공개 주소는 Vercel 무료(Hobby) 요금제로 올립니다. `index.html`은 claude.ai Artifact용 조각이라 페이지 틀(doctype · head · body)이 없으므로, 배포할 때 `scripts/build.mjs`가 틀을 씌워 `dist/index.html`을 만듭니다(`vercel.json`의 `buildCommand` · `outputDirectory`). 저장소에 올리면 Vercel이 자동으로 다시 배포합니다.
+
+- 직접 확인: `node scripts/build.mjs` 후 `dist/index.html`을 브라우저로 열기
+
 ## 입문용 · 바이브 코딩 교과서
 
 컴퓨터 용어부터 AI와 함께 앱을 만들어 배포하기까지. 12 Parts · 68 챕터 · 약 35시간 + 졸업 프로젝트 1–2주.
