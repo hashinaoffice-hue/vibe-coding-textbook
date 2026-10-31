@@ -5,7 +5,8 @@
 - 배포 위치: claude.ai Artifact — https://claude.ai/artifact/MuRU8dVsYELWPz8DbEqWNC
   - 수정 후 같은 링크에 다시 올릴 때는 Artifact 도구에 `url`로 이 주소를 넘긴다. 새 세션에서는 먼저 `action: "read"`로 읽은 뒤 publish.
   - `<!doctype>`, `<html>`, `<head>`, `<body>` 태그는 쓰지 않는다 (Artifact가 자동으로 감싼다).
-- 공개 주소: Vercel 무료(Hobby) 요금제, 공부용 · 비상업용. 저장소를 연결하면 올릴 때마다 자동 배포
+- 공개 주소: https://vibe-coding-textbook-theta.vercel.app — Vercel 무료(Hobby) 요금제, 공부용 · 비상업용. 올릴 때마다 자동 배포
+  - 검증 기간에는 Vercel의 운영 브랜치(Production Branch)를 작업 브랜치 `claude/peaceful-bohr-b2piva`로 둔다. main에 합친 뒤 `main`으로 되돌린다
   - `scripts/build.mjs`가 index.html 앞쪽의 `<title>` · `<link>` 줄을 head로 옮기고 doctype · charset · viewport를 씌워 `dist/index.html`을 만든다(`vercel.json`: buildCommand `node scripts/build.mjs`, outputDirectory `dist`). `dist/`는 커밋하지 않는다
   - index.html 맨 앞에 head용 줄을 더할 때는 `<title>` · `<link>` · `<meta>`로 시작하는 줄이어야 head로 옮겨진다
 

@@ -13,7 +13,7 @@
 
 ## 배포 (Vercel)
 
-공부용 공개 주소는 Vercel 무료(Hobby) 요금제로 올립니다. `index.html`은 claude.ai Artifact용 조각이라 페이지 틀(doctype · head · body)이 없으므로, 배포할 때 `scripts/build.mjs`가 틀을 씌워 `dist/index.html`을 만듭니다(`vercel.json`의 `buildCommand` · `outputDirectory`). 저장소에 올리면 Vercel이 자동으로 다시 배포합니다.
+공부용 공개 주소는 https://vibe-coding-textbook-theta.vercel.app 이고, Vercel 무료(Hobby) 요금제로 올립니다. `index.html`은 claude.ai Artifact용 조각이라 페이지 틀(doctype · head · body)이 없으므로, 배포할 때 `scripts/build.mjs`가 틀을 씌워 `dist/index.html`을 만듭니다(`vercel.json`의 `buildCommand` · `outputDirectory`). 저장소에 올리면 Vercel이 자동으로 다시 배포합니다.
 
 - 직접 확인: `node scripts/build.mjs` 후 `dist/index.html`을 브라우저로 열기
 
