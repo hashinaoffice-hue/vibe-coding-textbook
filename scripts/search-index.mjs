@@ -1,0 +1,39 @@
+// 교과서 네 권의 Part · 챕터 · 용어를 검색용 목록으로 뽑는다(위젯용 search.json).
+// index.html의 내용 부분(DETAIL1 ~ BOOKDATA)만 Node에서 실행해 홈 검색과 같은 자료를 만든다.
+import { readFileSync } from 'node:fs';
+import vm from 'node:vm';
+
+const BOOK_LABEL = { intro: '입문', novice: '초보자', mid: '중수', pro: '전문가' };
+
+export function buildSearchIndex(file = 'index.html') {
+  const html = readFileSync(file, 'utf8');
+  const scripts = [...html.matchAll(/<script>([\s\S]*?)<\/script>/g)].map(m => m[1]);
+  const end = scripts[1].indexOf('/* ---------- 지금 펼친 교과서');
+  if (scripts.length < 2 || end < 0) throw new Error('index.html 구조가 예상과 달라요: 내용 부분을 찾지 못했어요');
+  const code = scripts[0] + '\n' + scripts[1].slice(0, end) + `
+;globalThis.__idx = (() => {
+  const out = [];
+  Object.values(BOOKDATA).forEach(bk => {
+    const seen = new Set();
+    bk.parts.forEach((p, i) => {
+      if (!ready(p)) return;
+      const part = 'Part ' + pad(i) + ' ' + p.title;
+      out.push({ k: 'p', b: bk.id, w: p.title, m: bk.name + ' · 챕터 ' + p.lessons.length + '개', at: 'Part ' + pad(i) });
+      p.lessons.forEach((l, j) => {
+        const key = i + '-' + (j + 1);
+        out.push({ k: 'c', b: bk.id, w: l[0], m: l[1], tags: l[2] || [], at: part + ' · ' + key });
+        ((bk.detail[key] || {}).t || []).forEach(([term, r, m]) => {
+          if (seen.has(term)) return; seen.add(term);
+          const [o, rd] = r.includes('|') ? r.split('|') : ['', r];
+          out.push({ k: 't', b: bk.id, w: term, o, r: rd, m, at: key + ' ' + l[0] });
+        });
+      });
+    });
+  });
+  return out;
+})();`;
+  const ctx = { console };
+  vm.createContext(ctx);
+  vm.runInContext(code, ctx, { filename: 'index.html(내용 부분)' });
+  return { books: BOOK_LABEL, items: ctx.__idx };
+}

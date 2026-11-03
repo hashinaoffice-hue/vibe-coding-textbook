@@ -17,6 +17,10 @@
 
 - 직접 확인: `node scripts/build.mjs` 후 `dist/index.html`을 브라우저로 열기
 
+## 검색 위젯 · 바이브 코딩 사전
+
+교과서 네 권의 용어 · 챕터만 빠르게 찾는 플로팅 검색 창입니다. 데스크톱 앱(Windows · Mac)에서는 어느 앱을 쓰다가도 `\` 키를 세 번 누르면 뜹니다. 브라우저에서는 https://vibe-coding-textbook-theta.vercel.app/widget.html 로 열 수 있습니다. 실행과 설치 방법은 [`desktop/README.md`](desktop/README.md)를 보세요.
+
 ## 입문용 · 바이브 코딩 교과서
 
 컴퓨터 용어부터 AI와 함께 앱을 만들어 배포하기까지. 12 Parts · 68 챕터 · 약 35시간 + 졸업 프로젝트 1–2주.

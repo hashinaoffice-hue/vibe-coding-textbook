@@ -1,0 +1,194 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>바이브 코딩 사전</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans+KR:wght@400;500;600&display=swap">
+<style>
+/* 바이브 코딩 사전: 교과서 네 권의 용어 · 챕터를 찾는 작은 검색 위젯. 데스크톱 앱(Electron) 창과 브라우저 양쪽에서 쓴다 */
+:root{
+  --bg:#090B0A; --surface:#161C1A; --line:#2E3834; --line-2:#4A5852; --chip:#212A27;
+  --ink:#E8EEEB; --ink-2:#CDD7D2; --muted:#9DAAA4;
+  --accent:#3DDBA6; --accent-soft:rgba(61,219,166,.14); --mark:rgba(61,219,166,.26);
+  --shadow:0 16px 48px rgba(0,0,0,.45);
+  --f-body:'IBM Plex Sans KR','Apple SD Gothic Neo','Malgun Gothic',system-ui,sans-serif;
+  --f-mono:'IBM Plex Mono','IBM Plex Sans KR',ui-monospace,'SFMono-Regular',Consolas,monospace;
+  color-scheme:dark;
+}
+@media (prefers-color-scheme: light){
+  :root{
+    --bg:#E9EEEC; --surface:#FFFFFF; --line:#D3DCD8; --line-2:#A9B7B1; --chip:#E7EDEA;
+    --ink:#0F1614; --ink-2:#2B3833; --muted:#55645E;
+    --accent:#0A8A5F; --accent-soft:rgba(10,138,95,.11); --mark:rgba(10,138,95,.2);
+    --shadow:0 12px 36px rgba(20,40,32,.14);
+    color-scheme:light;
+  }
+}
+*{box-sizing:border-box}
+html,body{height:100%;margin:0}
+body{background:var(--bg);color:var(--ink);font:400 14px/1.6 var(--f-body);-webkit-font-smoothing:antialiased}
+.app body, html.app body{background:transparent}
+[hidden]{display:none!important}
+
+.card{display:flex;flex-direction:column;width:min(560px,100% - 32px);height:min(560px,100vh - 64px);margin:32px auto;
+  background:var(--surface);border:1px solid var(--line);border-radius:16px;box-shadow:var(--shadow);overflow:hidden}
+html.app .card{width:auto;height:auto;position:fixed;inset:8px;margin:0}
+
+.top{display:flex;align-items:center;gap:8px;padding:12px 16px 0;-webkit-app-region:drag;user-select:none}
+.top .nm{font-size:12px;font-weight:600;color:var(--muted);letter-spacing:.02em}
+.top .nm b{color:var(--accent);font-weight:600}
+.top .x{margin-left:auto;display:none;width:24px;height:24px;border:0;border-radius:6px;background:transparent;color:var(--muted);cursor:pointer;-webkit-app-region:no-drag}
+html.app .top .x{display:grid;place-items:center}
+.top .x:hover{background:var(--chip);color:var(--ink)}
+.top .x svg{width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round}
+
+.sbox{display:flex;align-items:center;gap:8px;margin:12px 16px 0;padding:0 12px;height:44px;border:1px solid var(--line-2);border-radius:10px;background:var(--bg)}
+.sbox:focus-within{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}
+.sbox svg{width:18px;height:18px;flex:none;fill:none;stroke:var(--muted);stroke-width:2;stroke-linecap:round}
+.sbox input{flex:1;min-width:0;border:0;outline:0;background:transparent;color:var(--ink);font:500 16px var(--f-body)}
+.sbox input::placeholder{color:var(--muted);font-weight:400}
+.sbox input::-webkit-search-cancel-button{-webkit-appearance:none;appearance:none}
+
+.tabs{display:flex;gap:4px;margin:12px 16px 0}
+.tabs button{border:1px solid transparent;border-radius:999px;background:transparent;color:var(--muted);font:500 12px var(--f-body);padding:4px 12px;cursor:pointer}
+.tabs button:hover{color:var(--ink)}
+.tabs button.on{background:var(--accent-soft);border-color:transparent;color:var(--accent)}
+.tabs .n{margin-left:4px;font:400 11px var(--f-mono);opacity:.8}
+
+.res{flex:1;overflow:auto;margin:8px 0 0;padding:0 8px 8px;list-style:none;scrollbar-width:thin}
+.res li{padding:12px;border-radius:10px;cursor:default}
+.res li + li{margin-top:2px}
+.res li.on{background:var(--chip)}
+.res .h{display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 8px}
+.res .w{font-size:15px;font-weight:600;color:var(--ink)}
+.res .o{font:400 12px var(--f-mono);color:var(--muted)}
+.res .r{font-size:12px;color:var(--accent)}
+.res .k{font:500 11px var(--f-body);color:var(--muted);border:1px solid var(--line);border-radius:4px;padding:0 6px}
+.res .m{margin-top:4px;color:var(--ink-2)}
+.res .at{margin-top:4px;font-size:12px;color:var(--muted)}
+.res .at b{font-weight:500;color:var(--ink-2)}
+.res mark{background:var(--mark);color:inherit;border-radius:3px;padding:0 1px}
+.empty{padding:24px 16px;color:var(--muted);font-size:13px;text-align:center}
+.empty b{color:var(--ink-2);font-weight:500}
+
+.foot{display:flex;gap:16px;justify-content:center;padding:8px 16px 12px;border-top:1px solid var(--line);font-size:11px;color:var(--muted)}
+.foot kbd{font:500 11px var(--f-mono);color:var(--ink-2);border:1px solid var(--line-2);border-radius:4px;padding:0 4px}
+</style>
+</head>
+<body>
+<main class="card" role="search">
+  <div class="top">
+    <span class="nm"><b>바이브 코딩</b> 사전</span>
+    <button class="x" type="button" id="hide" aria-label="닫기"><svg viewBox="0 0 16 16"><path d="M4 4l8 8M12 4l-8 8"/></svg></button>
+  </div>
+  <label class="sbox"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.5"/><path d="M20 20l-4.2-4.2"/></svg>
+    <input id="q" type="search" autocomplete="off" spellcheck="false" placeholder="용어나 챕터를 입력하세요" aria-label="용어나 챕터 검색" aria-controls="res" autofocus></label>
+  <div class="tabs" role="tablist" id="tabs">
+    <button type="button" data-k="" class="on">모두<span class="n" id="n0"></span></button>
+    <button type="button" data-k="t">용어<span class="n" id="nt"></span></button>
+    <button type="button" data-k="c">챕터<span class="n" id="nc"></span></button>
+  </div>
+  <ul class="res" id="res" role="listbox" aria-label="검색 결과"></ul>
+  <div class="foot"><span><kbd>↑</kbd> <kbd>↓</kbd> 고르기</span><span><kbd>Esc</kbd> 지우기 · 닫기</span><span id="hk"></span></div>
+</main>
+<script>
+const isApp = !!window.vibe;
+if (isApp) document.documentElement.classList.add('app');
+const $ = id => document.getElementById(id);
+const qIn = $('q'), resEl = $('res');
+let DATA = null, kind = '', hits = [], sel = 0;
+
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const norm = s => String(s ?? '').toLowerCase().replace(/\s+/g, '');
+function hl(text, q){
+  const t = String(text ?? ''), i = q ? t.toLowerCase().indexOf(q) : -1;
+  return i < 0 ? esc(t) : esc(t.slice(0, i)) + '<mark>' + esc(t.slice(i, i + q.length)) + '</mark>' + esc(t.slice(i + q.length));
+}
+
+function prep(data){
+  data.items.forEach(x => {
+    x.nw = norm(x.w);
+    x.no = norm([x.o, x.r].join(' '));
+    x.nm = norm([x.m, ...(x.tags || [])].join(' '));
+  });
+  return data;
+}
+
+function score(x, q){
+  if (x.nw === q) return 0;
+  if (x.nw.startsWith(q)) return 1;
+  if (x.nw.includes(q)) return 2;
+  if (x.no.includes(q)) return 3;
+  if (x.nm.includes(q)) return 4;
+  return 9;
+}
+const ORDER = { t: 0, c: 1, p: 2 };
+
+function render(){
+  const raw = qIn.value.trim(), q = norm(raw);
+  if (!DATA){ resEl.innerHTML = `<li class="empty">교과서 내용을 불러오는 중이에요…</li>`; return; }
+  if (!q){
+    hits = []; ['n0','nt','nc'].forEach(id => $(id).textContent = '');
+    resEl.innerHTML = `<li class="empty">교과서 네 권의 <b>용어 ${DATA.items.filter(x=>x.k==='t').length}개</b>와 <b>챕터 ${DATA.items.filter(x=>x.k==='c').length}개</b>에서 찾아요.<br>예: RLS, 배포, worktree, 커밋</li>`;
+    return;
+  }
+  const all = DATA.items.map(x => ({ x, s: score(x, q) })).filter(o => o.s < 9)
+    .sort((a, b) => a.s - b.s || ORDER[a.x.k] - ORDER[b.x.k] || a.x.w.length - b.x.w.length);
+  $('n0').textContent = all.length;
+  $('nt').textContent = all.filter(o => o.x.k === 't').length;
+  $('nc').textContent = all.filter(o => o.x.k !== 't').length;
+  hits = all.filter(o => !kind || (kind === 't' ? o.x.k === 't' : o.x.k !== 't')).slice(0, 40).map(o => o.x);
+  sel = 0;
+  if (!hits.length){ resEl.innerHTML = `<li class="empty">‘${esc(raw)}’에 맞는 용어나 챕터가 없어요. 다른 낱말로 찾아보세요.</li>`; return; }
+  const ql = raw.toLowerCase();
+  resEl.innerHTML = hits.map((x, i) => {
+    const book = DATA.books[x.b] || x.b;
+    const head = x.k === 't'
+      ? `<span class="w">${hl(x.w, ql)}</span>${x.o ? `<span class="o">${esc(x.o)}</span>` : ''}${x.r ? `<span class="r">[${esc(x.r)}]</span>` : ''}`
+      : `<span class="k">${x.k === 'p' ? 'Part' : '챕터'}</span><span class="w">${hl(x.w, ql)}</span>`;
+    return `<li role="option" id="o${i}"${i === sel ? ' class="on" aria-selected="true"' : ''}><div class="h">${head}</div><div class="m">${esc(x.m)}</div><div class="at"><b>${esc(book)}</b> · ${esc(x.at)}</div></li>`;
+  }).join('');
+  resEl.scrollTop = 0;
+}
+
+function move(n){
+  if (!hits.length) return;
+  sel = (sel + n + hits.length) % hits.length;
+  resEl.querySelectorAll('li[role=option]').forEach((li, i) => { li.classList.toggle('on', i === sel); li.toggleAttribute('aria-selected', i === sel); if (i === sel) li.scrollIntoView({ block: 'nearest' }); });
+}
+
+qIn.addEventListener('input', render);
+qIn.addEventListener('keydown', e => {
+  if (e.key === 'ArrowDown'){ e.preventDefault(); move(1); }
+  else if (e.key === 'ArrowUp'){ e.preventDefault(); move(-1); }
+  else if (e.key === 'Escape'){ e.preventDefault(); if (qIn.value){ qIn.value = ''; render(); } else if (isApp) window.vibe.hide(); }
+});
+resEl.addEventListener('mousemove', e => { const li = e.target.closest('li[role=option]'); if (!li) return; const i = +li.id.slice(1); if (i !== sel){ sel = i; move(0); } });
+$('tabs').addEventListener('click', e => {
+  const b = e.target.closest('button[data-k]'); if (!b) return;
+  kind = b.dataset.k; $('tabs').querySelectorAll('button').forEach(x => x.classList.toggle('on', x === b));
+  render(); qIn.focus();
+});
+$('hide').addEventListener('click', () => window.vibe && window.vibe.hide());
+
+if (isApp){
+  $('hk').innerHTML = '<kbd>\\</kbd> 세 번 열기';
+  window.vibe.onShow(() => { qIn.focus(); qIn.select(); });
+}
+
+(async () => {
+  try {
+    DATA = prep(isApp ? await window.vibe.getIndex() : await (await fetch('search.json', { cache: 'no-cache' })).json());
+  } catch (err) {
+    resEl.innerHTML = `<li class="empty">교과서 내용을 불러오지 못했어요. 인터넷 연결을 확인한 뒤 다시 열어 주세요.</li>`;
+    return;
+  }
+  render();
+})();
+render();
+</script>
+</body>
+</html>
