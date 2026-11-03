@@ -1,6 +1,6 @@
 // 바이브 코딩 사전: 교과서 용어 · 챕터를 찾는 작은 플로팅 검색 창.
 // \ 키를 빠르게 세 번 누르면 어느 앱에서든 창이 뜨고, 다시 세 번 누르거나 Esc를 누르면 숨어요.
-const { app, BrowserWindow, Tray, Menu, nativeImage, ipcMain, screen, net, shell, dialog, systemPreferences } = require('electron');
+const { app, BrowserWindow, Tray, Menu, nativeImage, nativeTheme, ipcMain, screen, net, shell, dialog, systemPreferences } = require('electron');
 const path = require('node:path');
 const fs = require('node:fs');
 
@@ -13,11 +13,25 @@ app.isQuitting = false;
 if (!app.requestSingleInstanceLock()) app.quit();
 app.on('second-instance', () => showWin());
 
-/* ---------- 창 ---------- */
+/* ---------- 설정: 화면 모드(system · light · dark) ---------- */
+const settingsFile = () => path.join(app.getPath('userData'), 'settings.json');
+function loadSettings() { try { return JSON.parse(fs.readFileSync(settingsFile(), 'utf8')); } catch { return {}; } }
+function saveSettings(patch) { fs.writeFileSync(settingsFile(), JSON.stringify({ ...loadSettings(), ...patch })); }
+const surface = () => (nativeTheme.shouldUseDarkColors ? '#161C1A' : '#FFFFFF');
+function setMode(m) {
+  nativeTheme.themeSource = ['light', 'dark'].includes(m) ? m : 'system';
+  if (win) win.setBackgroundColor(surface());
+}
+nativeTheme.on('updated', () => win && win.setBackgroundColor(surface()));
+ipcMain.handle('mode:get', () => loadSettings().mode || 'system');
+ipcMain.on('mode:set', (_e, m) => { saveSettings({ mode: m }); setMode(m); });
+
+/* ---------- 창: 운영체제가 그려 주는 은은한 그림자와 둥근 모서리를 써요 ---------- */
 function createWin() {
   win = new BrowserWindow({
     width: 560, height: 520, show: false,
-    frame: false, transparent: true, resizable: false,
+    frame: false, resizable: false, hasShadow: true, roundedCorners: true,
+    backgroundColor: surface(),
     alwaysOnTop: true, skipTaskbar: true,
     minimizable: false, maximizable: false, fullscreenable: false,
     title: '바이브 코딩 사전',
@@ -120,6 +134,7 @@ function createTray(hotkeyOn) {
 }
 
 app.whenReady().then(() => {
+  setMode(loadSettings().mode);
   if (process.platform === 'darwin' && app.dock) app.dock.hide();
   createWin();
   createTray(startHotkey());

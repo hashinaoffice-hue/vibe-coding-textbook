@@ -1,6 +1,6 @@
 {
   "name": "vibe-coding-dictionary",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "바이브 코딩 백과사전의 용어 · 챕터를 찾는 플로팅 검색 위젯",
   "main": "main.js",
   "private": true,

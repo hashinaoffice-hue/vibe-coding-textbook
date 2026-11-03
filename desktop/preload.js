@@ -4,5 +4,7 @@ const { contextBridge, ipcRenderer } = require('electron');
 contextBridge.exposeInMainWorld('vibe', {
   getIndex: () => ipcRenderer.invoke('index'),
   hide: () => ipcRenderer.send('hide'),
+  getMode: () => ipcRenderer.invoke('mode:get'),
+  setMode: m => ipcRenderer.send('mode:set', m),
   onShow: fn => ipcRenderer.on('shown', () => fn())
 });
