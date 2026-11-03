@@ -75,6 +75,8 @@ html.app .top .x{display:grid;place-items:center}
 .empty b{color:var(--ink-2);font-weight:500}
 
 .foot{display:flex;gap:16px;justify-content:center;padding:8px 16px 12px;border-top:1px solid var(--line);font-size:11px;color:var(--muted)}
+.foot a{color:var(--accent);text-decoration:none}
+.foot a:hover{text-decoration:underline}
 .foot kbd{font:500 11px var(--f-mono);color:var(--ink-2);border:1px solid var(--line-2);border-radius:4px;padding:0 4px}
 </style>
 </head>
@@ -174,6 +176,8 @@ $('tabs').addEventListener('click', e => {
 });
 $('hide').addEventListener('click', () => window.vibe && window.vibe.hide());
 
+const DOWNLOAD = 'https://github.com/hashinaoffice-hue/vibe-coding-textbook/releases/latest';
+if (!isApp) $('hk').innerHTML = `<a href="${DOWNLOAD}" target="_blank" rel="noopener">데스크톱 앱 내려받기</a>`;
 if (isApp){
   $('hk').innerHTML = '<kbd>\\</kbd> 세 번 열기';
   window.vibe.onShow(() => { qIn.focus(); qIn.select(); });

@@ -11,7 +11,19 @@
 
 브라우저에서도 같은 화면을 쓸 수 있어요: https://vibe-coding-textbook-theta.vercel.app/widget.html (단축키 없이)
 
-## 처음 실행하기
+## 내려받아 설치하기
+
+**https://github.com/hashinaoffice-hue/vibe-coding-textbook/releases/latest** 에서 내 컴퓨터에 맞는 파일을 받아요.
+
+| 컴퓨터 | 파일 |
+|---|---|
+| Windows | `VibeCodingDictionary-Setup-…-x64.exe` |
+| Mac (M1 · M2 · M3 · M4) | `VibeCodingDictionary-…-mac-arm64.dmg` |
+| Mac (인텔) | `VibeCodingDictionary-…-mac-x64.dmg` |
+
+설치 파일은 GitHub Actions(`.github/workflows/desktop-release.yml`)가 만들어 올려요. `desktop/`이 바뀌어 올라오면 자동으로 다시 만들고, 새 버전으로 내려면 `package.json`의 `version`을 올려요.
+
+## 개발용으로 실행하기
 
 [Node.js](https://nodejs.org) LTS가 필요해요. 이 `desktop` 폴더에서 Claude Code에게 이렇게 맡기면 돼요.
 
@@ -27,9 +39,9 @@ npm install
 npm start
 ```
 
-## 설치 파일 만들기
+## 내 컴퓨터에서 설치 파일 만들기
 
-매번 터미널을 열지 않으려면 설치 파일을 만들어요. **쓰는 운영체제에서** 만들어야 해요(Windows용은 Windows에서, Mac용은 Mac에서).
+보통은 위의 Releases에서 받으면 돼요. 직접 만들 때는 **쓰는 운영체제에서** 만들어야 해요(Windows용은 Windows에서, Mac용은 Mac에서).
 
 ```
 npm run dist

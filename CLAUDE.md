@@ -12,7 +12,8 @@
 - 검색 위젯 '바이브 코딩 사전'(`desktop/`): 용어 · 챕터만 찾는 플로팅 창. Electron 앱(Windows · Mac), `\` 키를 0.7초 안에 세 번 누르면 열고 닫음(uiohook-napi로 키를 세기만 하고 가로채지 않음), 트레이 메뉴, 항상 위
   - 화면은 `desktop/widget.html` 하나(앱과 브라우저 겸용, 브라우저에선 `/widget.html`). 자료는 `scripts/search-index.mjs`가 index.html의 내용 부분(DETAIL1 ~ BOOKDATA)을 Node로 실행해 홈 검색과 같은 항목으로 만든 `dist/search.json`
   - 앱은 켜질 때 공개 주소의 search.json을 받아 userData에 저장, 못 받으면 저장본을 씀. 시험할 때는 `VIBE_SITE`로 주소를 바꿀 수 있음
-  - 설치 파일은 `npm run dist`(electron-builder, `npmRebuild: false` — uiohook-napi는 미리 빌드된 파일을 씀). 자세한 건 `desktop/README.md`
+  - 설치 파일은 GitHub Actions(`.github/workflows/desktop-release.yml`)가 Windows(x64 .exe) · Mac(x64 · arm64 .dmg)으로 만들어 Releases `widget-v<버전>`에 올림. desktop/이 바뀌면 자동, 버전은 `desktop/package.json`. 서명 없음(처음 열 때 경고). 로컬은 `npm run dist`(electron-builder, `npmRebuild: false` — uiohook-napi는 미리 빌드된 파일을 씀). 자세한 건 `desktop/README.md`
+  - 저장소를 공개로 바꿔 누구나 Releases에서 내려받게 한다(사용자 결정)
 
 ## 작업 방식
 

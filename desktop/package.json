@@ -37,12 +37,16 @@
     },
     "nsis": {
       "oneClick": false,
-      "allowToChangeInstallationDirectory": true
+      "allowToChangeInstallationDirectory": true,
+      "artifactName": "VibeCodingDictionary-Setup-${version}-${arch}.${ext}"
     },
     "mac": {
       "target": "dmg",
       "category": "public.app-category.education"
     },
-    "publish": null
+    "publish": null,
+    "dmg": {
+      "artifactName": "VibeCodingDictionary-${version}-mac-${arch}.${ext}"
+    }
   }
 }

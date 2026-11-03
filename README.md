@@ -19,7 +19,7 @@
 
 ## 검색 위젯 · 바이브 코딩 사전
 
-교과서 네 권의 용어 · 챕터만 빠르게 찾는 플로팅 검색 창입니다. 데스크톱 앱(Windows · Mac)에서는 어느 앱을 쓰다가도 `\` 키를 세 번 누르면 뜹니다. 브라우저에서는 https://vibe-coding-textbook-theta.vercel.app/widget.html 로 열 수 있습니다. 실행과 설치 방법은 [`desktop/README.md`](desktop/README.md)를 보세요.
+교과서 네 권의 용어 · 챕터만 빠르게 찾는 플로팅 검색 창입니다. 데스크톱 앱(Windows · Mac)에서는 어느 앱을 쓰다가도 `\` 키를 세 번 누르면 뜹니다. 브라우저에서는 https://vibe-coding-textbook-theta.vercel.app/widget.html 로 열 수 있습니다. 설치 파일(Windows · Mac)은 [Releases](https://github.com/hashinaoffice-hue/vibe-coding-textbook/releases/latest)에서 받을 수 있고, GitHub Actions가 자동으로 만들어 올립니다. 자세한 건 [`desktop/README.md`](desktop/README.md)를 보세요.
 
 ## 입문용 · 바이브 코딩 교과서
 
