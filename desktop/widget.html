@@ -146,7 +146,7 @@ function render(){
   if (!DATA){ resEl.innerHTML = `<li class="empty">교과서 내용을 불러오는 중이에요…</li>`; return; }
   if (!q){
     hits = []; ['n0','nt','nc'].forEach(id => $(id).textContent = '');
-    resEl.innerHTML = `<li class="empty">교과서 네 권의 <b>용어 ${DATA.items.filter(x=>x.k==='t').length}개</b>와 <b>챕터 ${DATA.items.filter(x=>x.k==='c').length}개</b>에서 찾아요.<br>예: RLS, 배포, worktree, 커밋</li>`;
+    resEl.innerHTML = `<li class="empty">교과서 네 권의 <b>용어 ${DATA.items.filter(x=>x.k==='t').length}개</b>와 <b>챕터 ${DATA.items.filter(x=>x.k==='c').length}개</b>에서 찾아요.<br>예: RLS, 배포, worktree, 커밋${isApp ? '<br><br>컴퓨터를 켜면 뒤에서 조용히 기다려요.<br>언제든 <b>\\ 키를 세 번</b> 눌러 열고 닫아요.' : ''}</li>`;
     return;
   }
   const all = DATA.items.map(x => ({ x, s: score(x, q) })).filter(o => o.s < 9)

@@ -111,20 +111,27 @@ function startHotkey() {
   }
 }
 
+/* ---------- 컴퓨터를 켤 때 자동 실행: 창은 띄우지 않고 뒤에서 \ 세 번을 기다려요 ---------- */
+const LOGIN_ARGS = ['--hidden']; // Windows에서 자동 실행인지 알아보는 표시(Mac은 무시돼요)
+const loginOn = () => app.getLoginItemSettings({ args: LOGIN_ARGS }).openAtLogin;
+function setLogin(on) {
+  app.setLoginItemSettings({ openAtLogin: on, args: LOGIN_ARGS });
+  saveSettings({ login: on });
+}
+
 /* ---------- 트레이(작업 표시줄 · 메뉴 막대) 아이콘 ---------- */
 function createTray(hotkeyOn) {
   const icon = process.platform === 'darwin'
     ? nativeImage.createFromPath(path.join(__dirname, 'assets', 'trayTemplate.png'))
     : nativeImage.createFromPath(path.join(__dirname, 'assets', 'tray.png'));
   tray = new Tray(icon);
-  tray.setToolTip('바이브 코딩 사전');
-  const login = () => app.getLoginItemSettings().openAtLogin;
+  tray.setToolTip(hotkeyOn ? '바이브 코딩 사전 · \\ 세 번 눌러 열기' : '바이브 코딩 사전');
   const build = () => Menu.buildFromTemplate([
     { label: hotkeyOn ? '사전 열기   (\\ 세 번)' : '사전 열기', click: showWin },
     { label: '교과서 열기', click: () => shell.openExternal(SITE) },
     { type: 'separator' },
-    { label: '컴퓨터를 켤 때 자동 실행', type: 'checkbox', checked: login(),
-      click: item => { app.setLoginItemSettings({ openAtLogin: item.checked }); tray.setContextMenu(build()); } },
+    { label: '컴퓨터를 켤 때 자동 실행', type: 'checkbox', checked: loginOn(),
+      click: item => { setLogin(item.checked); tray.setContextMenu(build()); } },
     { label: '교과서 내용 새로 받기', click: () => win && win.reload() },
     { type: 'separator' },
     { label: '종료', click: () => { app.isQuitting = true; app.quit(); } }
@@ -134,10 +141,20 @@ function createTray(hotkeyOn) {
 }
 
 app.whenReady().then(() => {
-  setMode(loadSettings().mode);
+  const s = loadSettings();
+  setMode(s.mode);
   if (process.platform === 'darwin' && app.dock) app.dock.hide();
+  // 설치하고 처음 켤 때 자동 실행을 켜 둬요. 트레이 메뉴에서 끄면 그 뒤로는 그대로 둬요
+  if (app.isPackaged && s.login === undefined) setLogin(true);
   createWin();
   createTray(startHotkey());
+  // 창은 \ 세 번을 누를 때만 떠요. 예외: 처음 설치하고 켰을 때 안내로 한 번,
+  // Windows에서 시작 메뉴 등으로 직접 켰을 때(자동 실행은 --hidden이 붙어 있어 띄우지 않아요)
+  const manualWin = process.platform === 'win32' && !process.argv.includes('--hidden');
+  if (!s.welcomed || manualWin) {
+    saveSettings({ welcomed: true });
+    win.webContents.once('did-finish-load', showWin);
+  }
 });
 
 app.on('window-all-closed', e => e.preventDefault());

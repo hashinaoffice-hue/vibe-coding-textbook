@@ -9,7 +9,7 @@
   - 검증 기간에는 Vercel의 운영 브랜치(Production Branch)를 작업 브랜치 `claude/peaceful-bohr-b2piva`로 둔다. main에 합친 뒤 `main`으로 되돌린다
   - `scripts/build.mjs`가 index.html 앞쪽의 `<title>` · `<link>` 줄을 head로 옮기고 doctype · charset · viewport를 씌워 `dist/index.html`을 만든다(`vercel.json`: buildCommand `node scripts/build.mjs`, outputDirectory `dist`). `dist/`는 커밋하지 않는다
   - index.html 맨 앞에 head용 줄을 더할 때는 `<title>` · `<link>` · `<meta>`로 시작하는 줄이어야 head로 옮겨진다
-- 검색 위젯 '바이브 코딩 사전'(`desktop/`): 용어 · 챕터만 찾는 플로팅 창. Electron 앱(Windows · Mac), `\` 키를 0.7초 안에 세 번 누르면 열고 닫음(uiohook-napi로 키를 세기만 하고 가로채지 않음), 트레이 메뉴, 항상 위. 창은 투명하지 않게 두고 운영체제의 그림자 · 둥근 모서리를 씀. 화면 모드 버튼(시스템 · 라이트 · 다크, 앱은 userData/settings.json, 브라우저는 localStorage)
+- 검색 위젯 '바이브 코딩 사전'(`desktop/`): 용어 · 챕터만 찾는 플로팅 창. Electron 앱(Windows · Mac), `\` 키를 0.7초 안에 세 번 누르면 열고 닫음(uiohook-napi로 키를 세기만 하고 가로채지 않음), 트레이 메뉴, 항상 위. 창은 투명하지 않게 두고 운영체제의 그림자 · 둥근 모서리를 씀. 화면 모드 버튼(시스템 · 라이트 · 다크, 앱은 userData/settings.json, 브라우저는 localStorage). 설치 후 첫 실행 때 로그인 시 자동 실행을 켬(Windows는 `--hidden` 인자로 구분해 창을 안 띄움, Mac은 시작 때 창을 안 띄움), 창은 첫 실행 안내 · Windows 직접 실행 · 다시 실행 · `\` 세 번에만 뜸
   - 화면은 `desktop/widget.html` 하나(앱과 브라우저 겸용, 브라우저에선 `/widget.html`). 자료는 `scripts/search-index.mjs`가 index.html의 내용 부분(DETAIL1 ~ BOOKDATA)을 Node로 실행해 홈 검색과 같은 항목으로 만든 `dist/search.json`
   - 앱은 켜질 때 공개 주소의 search.json을 받아 userData에 저장, 못 받으면 저장본을 씀. 시험할 때는 `VIBE_SITE`로 주소를 바꿀 수 있음
   - 설치 파일은 GitHub Actions(`.github/workflows/desktop-release.yml`)가 Windows(x64 .exe) · Mac(x64 · arm64 .dmg)으로 만들어 Releases `widget-v<버전>`에 올림. desktop/이 바뀌면 자동, 버전은 `desktop/package.json`. 서명 없음(처음 열 때 경고). 로컬은 `npm run dist`(electron-builder, `npmRebuild: false` — uiohook-napi는 미리 빌드된 파일을 씀). 자세한 건 `desktop/README.md`
