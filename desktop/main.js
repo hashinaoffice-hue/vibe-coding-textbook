@@ -1,11 +1,12 @@
 // 바이브 코딩 사전: 교과서 용어 · 챕터를 찾는 작은 플로팅 검색 창.
-// \ 키를 빠르게 세 번 누르면 어느 앱에서든 창이 뜨고, 다시 세 번 누르거나 Esc를 누르면 숨어요.
+// \ 키를 빠르게 세 번 누르면 어느 앱에서든 창이 뜨고, 떠 있을 때 두 번 누르거나 Esc를 누르면 숨어요.
 const { app, BrowserWindow, Tray, Menu, nativeImage, nativeTheme, ipcMain, screen, net, shell, dialog, systemPreferences } = require('electron');
 const path = require('node:path');
 const fs = require('node:fs');
 
 const SITE = process.env.VIBE_SITE || 'https://vibe-coding-textbook-theta.vercel.app'; // 시험할 때만 VIBE_SITE로 바꿔요
-const TRIPLE_MS = 700; // 세 번을 이 시간(ms) 안에 눌러야 해요
+const PRESS_MS = 700; // 이 시간(ms) 안에 이어서 눌러야 한 묶음으로 세요
+const OPEN_PRESSES = 3, CLOSE_PRESSES = 2; // 닫혀 있으면 세 번에 열고, 떠 있으면 두 번에 닫아요
 
 let win = null, tray = null, lastPos = null;
 app.isQuitting = false;
@@ -94,13 +95,18 @@ function startHotkey() {
   }
   try {
     const { uIOhook, UiohookKey } = require('uiohook-napi');
-    let presses = [];
+    let presses = [], lastToggle = 0;
     uIOhook.on('keydown', e => {
       if (e.keycode !== UiohookKey.Backslash || e.ctrlKey || e.altKey || e.metaKey) { presses = []; return; }
       const now = Date.now();
-      presses = presses.filter(t => now - t < TRIPLE_MS);
+      if (now - lastToggle < 400) return; // 방금 열고 닫은 직후의 남은 입력은 세지 않아요
+      presses = presses.filter(t => now - t < PRESS_MS);
       presses.push(now);
-      if (presses.length >= 3) { presses = []; toggleWin(); }
+      const open = win && win.isVisible();
+      if (presses.length >= (open ? CLOSE_PRESSES : OPEN_PRESSES)) {
+        presses = []; lastToggle = now;
+        if (open) win.hide(); else showWin();
+      }
     });
     uIOhook.start();
     app.on('will-quit', () => { try { uIOhook.stop(); } catch {} });
@@ -125,9 +131,9 @@ function createTray(hotkeyOn) {
     ? nativeImage.createFromPath(path.join(__dirname, 'assets', 'trayTemplate.png'))
     : nativeImage.createFromPath(path.join(__dirname, 'assets', 'tray.png'));
   tray = new Tray(icon);
-  tray.setToolTip(hotkeyOn ? '바이브 코딩 사전 · \\ 세 번 눌러 열기' : '바이브 코딩 사전');
+  tray.setToolTip(hotkeyOn ? '바이브 코딩 사전 · \\ 세 번 열기 · 두 번 닫기' : '바이브 코딩 사전');
   const build = () => Menu.buildFromTemplate([
-    { label: hotkeyOn ? '사전 열기   (\\ 세 번)' : '사전 열기', click: showWin },
+    { label: hotkeyOn ? '사전 열기   (\\ 세 번 · 닫기는 두 번)' : '사전 열기', click: showWin },
     { label: '교과서 열기', click: () => shell.openExternal(SITE) },
     { type: 'separator' },
     { label: '컴퓨터를 켤 때 자동 실행', type: 'checkbox', checked: loginOn(),

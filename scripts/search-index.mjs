@@ -2,8 +2,10 @@
 // index.html의 내용 부분(DETAIL1 ~ BOOKDATA)만 Node에서 실행해 홈 검색과 같은 자료를 만든다.
 import { readFileSync } from 'node:fs';
 import vm from 'node:vm';
+import { GLOSSARY } from './glossary.mjs';
 
-const BOOK_LABEL = { intro: '입문', novice: '초보자', mid: '중수', pro: '전문가' };
+const BOOK_LABEL = { intro: '입문', novice: '초보자', mid: '중수', pro: '전문가', dict: '용어 사전' };
+const key = w => w.toLowerCase().replace(/\s*\([^)]*\)\s*$/, '').replace(/\s+/g, '');
 
 export function buildSearchIndex(file = 'index.html') {
   const html = readFileSync(file, 'utf8');
@@ -35,5 +37,15 @@ export function buildSearchIndex(file = 'index.html') {
   const ctx = { console };
   vm.createContext(ctx);
   vm.runInContext(code, ctx, { filename: 'index.html(내용 부분)' });
-  return { books: BOOK_LABEL, items: ctx.__idx };
+  // 일반 용어 사전: 교과서에 이미 있는 용어는 빼요(교과서 쪽이 어디서 배우는지까지 알려 주니까)
+  const items = ctx.__idx;
+  const have = new Set(items.filter(x => x.k === 't').map(x => key(x.w)));
+  for (const [cat, rows] of Object.entries(GLOSSARY)) {
+    for (const [w, o, r, m] of rows) {
+      if (have.has(key(w))) continue;
+      have.add(key(w));
+      items.push({ k: 't', b: 'dict', w, o, r, m, at: cat });
+    }
+  }
+  return { books: BOOK_LABEL, items };
 }
