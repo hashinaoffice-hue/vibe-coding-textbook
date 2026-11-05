@@ -364,6 +364,12 @@ mark{background:linear-gradient(transparent 56%,var(--mark) 56%);color:inherit;p
 .sres .tt{font-size:13px;color:var(--ink);display:block}
 .sres .sb{font-size:12px;color:var(--muted);display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .sres .none{padding:8px;font-size:13px;color:var(--muted)}
+.sres li.tabs{display:flex;gap:4px;padding:0 0 8px;margin:0 0 4px;border-bottom:1px solid var(--line)}
+.sres li.tabs button{display:inline-flex;align-items:baseline;gap:4px;width:auto;padding:4px 10px;border-radius:999px;font-size:12px;color:var(--muted)}
+.sres li.tabs button:hover{background:none;color:var(--ink)}
+.sres li.tabs button.on{background:var(--accent-soft);color:var(--accent)}
+.sres li.tabs .n{font:400 11px var(--f-mono);opacity:.8}
+.sres .ks .sb{white-space:normal;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
 
 .orbs{position:absolute;inset:0;pointer-events:none}
 .orb{position:absolute;left:0;top:0;border-radius:50%;pointer-events:auto;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;border:1px solid var(--line-2);background:radial-gradient(circle at 50% 35%,var(--chip),var(--surface) 70%) var(--surface);color:var(--ink);will-change:transform,filter,opacity}
@@ -396,7 +402,7 @@ mark{background:linear-gradient(transparent 56%,var(--mark) 56%);color:inherit;p
   <div class="ttl"><div class="k">VIBE CODING ENCYCLOPEDIA</div><h1>바이브 코딩 <span>백과사전</span></h1></div>
   <div class="hbar"><button class="hbtn" id="hModeBtn" type="button"></button></div>
   <div class="srch" role="search">
-    <label class="sbox" for="q"><svg class="ic" viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.5"/><path d="M20 20l-4.2-4.2"/></svg><input id="q" type="search" autocomplete="off" placeholder="챕터나 용어를 찾아보세요" aria-label="챕터나 용어 검색" aria-controls="qRes" aria-expanded="false"><span class="kb">/</span></label>
+    <label class="sbox" for="q"><svg class="ic" viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.5"/><path d="M20 20l-4.2-4.2"/></svg><input id="q" type="search" autocomplete="off" placeholder="챕터 · 용어 · 해결법을 찾아보세요" aria-label="챕터, 용어, 해결법 검색" aria-controls="qRes" aria-expanded="false"><span class="kb">/</span></label>
     <ul class="sres" id="qRes" role="listbox" hidden></ul>
   </div>
   <div class="disc bot" aria-hidden="true"></div>
@@ -3161,11 +3167,12 @@ function enterBook(id, key, off, detail, fl){
   if(location.hash!=='#'+B.hash) location.hash=B.hash;
   if(fl) setTimeout(()=>flashAt(fl),200);
 }
-// 검색에서 고른 것(Part 제목, 챕터 제목, 용어)을 다른 색으로 잠깐 반짝여요
+// 검색에서 고른 것(Part 제목, 챕터 제목, 용어, 해결법)을 다른 색으로 잠깐 반짝여요
 function flashAt(fl){
   let el=null;
   if(fl==='part') el=els[cur].querySelector('h2.st');
   else if(fl==='lesson') el=document.getElementById('dlgT');
+  else if(fl.stuck!=null) el=els[cur].querySelectorAll('.stk dt')[fl.stuck];
   else el=[...dlgB.querySelectorAll('.gl code')].find(c=>c.textContent===fl.term);
   clearTimeout(flashAt.t); document.querySelectorAll('.flash').forEach(e=>e.classList.remove('flash'));
   if(!el) return;
@@ -3190,35 +3197,44 @@ Object.values(BOOKDATA).forEach(bk=>{
   const seen=new Set();
   bk.parts.forEach((p,i)=>{
     if(!ready(p)) return;
-    IDX.push({tg:`${bk.lv} P${pad(i)}`, tt:p.title, sb:`${bk.name} · 챕터 ${p.lessons.length}개`, hay:p.title+' '+p.short, go:()=>enterBook(bk.id,'p'+i,0,null,'part')});
+    IDX.push({kd:'c', tg:`${bk.lv} P${pad(i)}`, tt:p.title, sb:`${bk.name} · 챕터 ${p.lessons.length}개`, hay:p.title+' '+p.short, go:()=>enterBook(bk.id,'p'+i,0,null,'part')});
     p.lessons.forEach((l,j)=>{
       const key=`${i}-${j+1}`;
-      IDX.push({tg:`${bk.lv} ${key}`, tt:l[0], sb:l[1], hay:[l[0],l[1],...(l[2]||[])].join(' '), go:()=>enterBook(bk.id,'p'+i,1,key,'lesson')});
+      IDX.push({kd:'c', tg:`${bk.lv} ${key}`, tt:l[0], sb:l[1], hay:[l[0],l[1],...(l[2]||[])].join(' '), go:()=>enterBook(bk.id,'p'+i,1,key,'lesson')});
       ((bk.detail[key]||{}).t||[]).forEach(([term,r,m])=>{
         if(seen.has(term)) return; seen.add(term);
         const [og,rd]=r.includes('|')?r.split('|'):['',r];
-        IDX.push({tg:`${bk.lv} 용어`, tt:term+(og?` · ${og}`:''), sb:m, hay:[term,og,rd].join(' '), go:()=>enterBook(bk.id,'p'+i,1,key,{term})});
+        IDX.push({kd:'t', tg:`${bk.lv} 용어`, tt:term+(og?` · ${og}`:''), sb:m, hay:[term,og,rd].join(' '), go:()=>enterBook(bk.id,'p'+i,1,key,{term})});
       });
+    });
+    // 실습 슬라이드의 ‘막혔을 때’: 증상과 해결법을 함께 찾아요
+    (p.stuck||[]).forEach(([q,a],k)=>{
+      IDX.push({kd:'s', tg:`${bk.lv} 해결법`, tt:q, sb:a, hay:q+' '+a, go:()=>enterBook(bk.id,'p'+i,2,null,{stuck:k})});
     });
   });
 });
 IDX.forEach(x=>{ x.lt=x.tt.toLowerCase(); x.lh=x.hay.toLowerCase(); });
 const qIn=document.getElementById('q'), qRes=document.getElementById('qRes');
-let hits=[], sel=0;
+let hits=[], sel=0, kind='';
+const KINDS=[['','모두'],['c','챕터'],['t','용어'],['s','해결법']];
 function closeRes(){ qRes.hidden=true; qIn.setAttribute('aria-expanded','false'); }
 function renderRes(){
   const q=qIn.value.trim().toLowerCase();
   if(!q){ hits=[]; closeRes(); return; }
-  hits=IDX.map(x=>({x, s: x.lt.startsWith(q)?0 : x.lt.includes(q)?1 : x.lh.includes(q)?2 : 9})).filter(o=>o.s<9).sort((a,b)=>a.s-b.s).slice(0,8).map(o=>o.x);
+  const all=IDX.map(x=>({x, s: x.lt.startsWith(q)?0 : x.lt.includes(q)?1 : x.lh.includes(q)?2 : 9})).filter(o=>o.s<9).sort((a,b)=>a.s-b.s);
+  const cnt={'':all.length}; all.forEach(o=>{ cnt[o.x.kd]=(cnt[o.x.kd]||0)+1; });
+  hits=all.filter(o=>!kind||o.x.kd===kind).slice(0,kind?20:8).map(o=>o.x);
   sel=0;
-  qRes.innerHTML = hits.length ? hits.map((x,k)=>`<li><button type="button" role="option" data-k="${k}"${k===sel?' class="on" aria-selected="true"':''}><span class="tg">${esc(x.tg)}</span><span><span class="tt">${esc(x.tt)}</span><span class="sb">${esc(x.sb)}</span></span></button></li>`).join('')
-    : `<li class="none">‘${esc(qIn.value.trim())}’에 맞는 챕터나 용어가 없어요. 다른 낱말로 찾아보세요.</li>`;
+  const tabs=`<li class="tabs" role="presentation">${KINDS.map(([k,n])=>`<button type="button" data-f="${k}"${k===kind?' class="on"':''}>${n}<span class="n">${cnt[k]||0}</span></button>`).join('')}</li>`;
+  const what=kind?KINDS.find(([k])=>k===kind)[1]:'챕터나 용어, 해결법';
+  qRes.innerHTML = tabs + (hits.length ? hits.map((x,k)=>`<li><button type="button" role="option" data-k="${k}" class="k${x.kd}${k===sel?' on':''}"${k===sel?' aria-selected="true"':''}><span class="tg">${esc(x.tg)}</span><span><span class="tt">${esc(x.tt)}</span><span class="sb">${esc(x.sb)}</span></span></button></li>`).join('')
+    : `<li class="none">‘${esc(qIn.value.trim())}’에 맞는 ${what}${kind==='t'||kind==='c'?'가':'이'} 없어요. 다른 낱말로 찾아보세요.</li>`);
   qRes.hidden=false; qIn.setAttribute('aria-expanded','true');
 }
 function moveSel(n){
   if(!hits.length) return;
   sel=(sel+n+hits.length)%hits.length;
-  qRes.querySelectorAll('button').forEach((b,k)=>{ b.classList.toggle('on',k===sel); b.toggleAttribute('aria-selected',k===sel); if(k===sel) b.scrollIntoView({block:'nearest'}); });
+  qRes.querySelectorAll('button[data-k]').forEach((b,k)=>{ b.classList.toggle('on',k===sel); b.toggleAttribute('aria-selected',k===sel); if(k===sel) b.scrollIntoView({block:'nearest'}); });
 }
 qIn.addEventListener('input',renderRes);
 qIn.addEventListener('focus',()=>{ if(qIn.value.trim()) renderRes(); });
@@ -3228,6 +3244,9 @@ qIn.addEventListener('keydown',e=>{
   else if(e.key==='Enter'){ e.preventDefault(); if(hits[sel]){ const h=hits[sel]; qIn.value=''; closeRes(); h.go(); } }
   else if(e.key==='Escape'){ if(qIn.value){ qIn.value=''; closeRes(); } else qIn.blur(); }
 });
+// 탭을 눌러도 검색 칸의 포커스는 그대로 둬요
+qRes.addEventListener('mousedown',e=>{ if(e.target.closest('button[data-f]')) e.preventDefault(); });
+qRes.addEventListener('click',e=>{ const f=e.target.closest('button[data-f]'); if(f){ e.stopPropagation(); kind=f.dataset.f; renderRes(); } });
 qRes.addEventListener('click',e=>{ const b=e.target.closest('button[data-k]'); if(!b) return; const h=hits[+b.dataset.k]; qIn.value=''; closeRes(); h.go(); });
 document.addEventListener('click',e=>{ if(view==='home' && !e.target.closest('.srch')) closeRes(); });
 

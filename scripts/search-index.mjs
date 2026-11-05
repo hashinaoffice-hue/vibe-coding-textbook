@@ -1,4 +1,4 @@
-// 교과서 네 권의 Part · 챕터 · 용어를 검색용 목록으로 뽑는다(위젯용 search.json).
+// 교과서 네 권의 Part · 챕터 · 용어 · 해결법을 검색용 목록으로 뽑는다(위젯용 search.json).
 // index.html의 내용 부분(DETAIL1 ~ BOOKDATA)만 Node에서 실행해 홈 검색과 같은 자료를 만든다.
 import { readFileSync } from 'node:fs';
 import vm from 'node:vm';
@@ -30,6 +30,8 @@ export function buildSearchIndex(file = 'index.html') {
           out.push({ k: 't', b: bk.id, w: term, o, r: rd, m, at: key + ' ' + l[0] });
         });
       });
+      // 실습 슬라이드의 ‘막혔을 때’: w = 증상, m = 해결법
+      (p.stuck || []).forEach(([q, a]) => out.push({ k: 's', b: bk.id, w: q, m: a, at: part + ' · 실습' }));
     });
   });
   return out;

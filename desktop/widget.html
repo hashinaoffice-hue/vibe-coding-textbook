@@ -79,6 +79,7 @@ html.app .top .x{display:grid}
 .res .r{font-size:12px;color:var(--accent)}
 .res .k{font:500 11px var(--f-body);color:var(--muted);border:1px solid var(--line);border-radius:4px;padding:0 6px}
 .res .m{margin-top:4px;color:var(--ink-2)}
+.res .k.s{color:var(--accent);border-color:var(--accent)}
 .res .at{margin-top:4px;font-size:12px;color:var(--muted)}
 .res .at b{font-weight:500;color:var(--ink-2)}
 .res mark{background:var(--mark);color:inherit;border-radius:3px;padding:0 1px}
@@ -114,11 +115,12 @@ html.app .top .x{display:grid}
     <button class="ib x" type="button" id="hide" aria-label="닫기" title="닫기 (Esc)"><svg viewBox="0 0 16 16"><path d="M4 4l8 8M12 4l-8 8"/></svg></button>
   </div>
   <label class="sbox"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.5"/><path d="M20 20l-4.2-4.2"/></svg>
-    <input id="q" type="search" autocomplete="off" spellcheck="false" placeholder="용어나 챕터를 입력하세요" aria-label="용어나 챕터 검색" aria-controls="res" autofocus></label>
+    <input id="q" type="search" autocomplete="off" spellcheck="false" placeholder="용어 · 챕터 · 해결법을 입력하세요" aria-label="용어, 챕터, 해결법 검색" aria-controls="res" autofocus></label>
   <div class="tabs" role="tablist" id="tabs">
     <button type="button" data-k="" class="on">모두<span class="n" id="n0"></span></button>
     <button type="button" data-k="t">용어<span class="n" id="nt"></span></button>
     <button type="button" data-k="c">챕터<span class="n" id="nc"></span></button>
+    <button type="button" data-k="s">해결법<span class="n" id="ns"></span></button>
   </div>
   <ul class="res" id="res" role="listbox" aria-label="검색 결과"></ul>
   <div class="pop" id="pop" role="dialog" aria-label="용어 뜻" hidden></div>
@@ -190,31 +192,35 @@ function score(x, q){
   if (x.nm.includes(q)) return 4;
   return 9;
 }
-const ORDER = { t: 0, c: 1, p: 2 };
+const ORDER = { t: 0, c: 1, p: 2, s: 3 };
+// 탭: t 용어, c 챕터(Part 포함), s 해결법(실습 슬라이드의 ‘막혔을 때’)
+const KIND_OF = x => (x.k === 'p' ? 'c' : x.k);
+const KIND_NAME = { '': '용어나 챕터, 해결법이', t: '용어가', c: '챕터가', s: '해결법이' };
 
 function render(){
   closePop();
   const raw = qIn.value.trim(), q = norm(raw);
   if (!DATA){ resEl.innerHTML = `<li class="empty">교과서 내용을 불러오는 중이에요…</li>`; return; }
   if (!q){
-    hits = []; ['n0','nt','nc'].forEach(id => $(id).textContent = '');
-    resEl.innerHTML = `<li class="empty">교과서 네 권과 용어 사전의 <b>용어 ${DATA.items.filter(x=>x.k==='t').length}개</b>, <b>챕터 ${DATA.items.filter(x=>x.k==='c').length}개</b>에서 찾아요.<br>예: RLS, 배포, worktree, 커밋${isApp ? '<br><br>컴퓨터를 켜면 뒤에서 조용히 기다려요.<br><b>\\ 세 번</b>으로 열고, <b>\\ 두 번</b>으로 닫아요.' : ''}</li>`;
+    hits = []; ['n0','nt','nc','ns'].forEach(id => $(id).textContent = '');
+    resEl.innerHTML = `<li class="empty">교과서 네 권과 용어 사전의 <b>용어 ${DATA.items.filter(x=>x.k==='t').length}개</b>, <b>챕터 ${DATA.items.filter(x=>x.k==='c').length}개</b>, <b>해결법 ${DATA.items.filter(x=>x.k==='s').length}개</b>에서 찾아요.<br>예: RLS, 배포, worktree, 커밋, 로그인${isApp ? '<br><br>컴퓨터를 켜면 뒤에서 조용히 기다려요.<br><b>\\ 세 번</b>으로 열고, <b>\\ 두 번</b>으로 닫아요.' : ''}</li>`;
     return;
   }
   const all = DATA.items.map(x => ({ x, s: score(x, q) })).filter(o => o.s < 9)
     .sort((a, b) => a.s - b.s || ORDER[a.x.k] - ORDER[b.x.k] || (a.x.b === 'dict') - (b.x.b === 'dict') || a.x.w.length - b.x.w.length);
   $('n0').textContent = all.length;
   $('nt').textContent = all.filter(o => o.x.k === 't').length;
-  $('nc').textContent = all.filter(o => o.x.k !== 't').length;
-  hits = all.filter(o => !kind || (kind === 't' ? o.x.k === 't' : o.x.k !== 't')).slice(0, 40).map(o => o.x);
+  $('nc').textContent = all.filter(o => KIND_OF(o.x) === 'c').length;
+  $('ns').textContent = all.filter(o => o.x.k === 's').length;
+  hits = all.filter(o => !kind || KIND_OF(o.x) === kind).slice(0, 40).map(o => o.x);
   sel = 0;
-  if (!hits.length){ resEl.innerHTML = `<li class="empty">‘${esc(raw)}’에 맞는 용어나 챕터가 없어요. 다른 낱말로 찾아보세요.</li>`; return; }
+  if (!hits.length){ resEl.innerHTML = `<li class="empty">‘${esc(raw)}’에 맞는 ${KIND_NAME[kind]} 없어요. 다른 낱말로 찾아보세요.</li>`; return; }
   const ql = raw.toLowerCase();
   resEl.innerHTML = hits.map((x, i) => {
     const book = DATA.books[x.b] || x.b;
     const head = x.k === 't'
       ? `<span class="w">${hl(x.w, ql)}</span>${x.o ? `<span class="o">${esc(x.o)}</span>` : ''}${x.r ? `<span class="r">[${esc(x.r)}]</span>` : ''}`
-      : `<span class="k">${x.k === 'p' ? 'Part' : '챕터'}</span><span class="w">${hl(x.w, ql)}</span>`;
+      : `<span class="k${x.k === 's' ? ' s' : ''}">${x.k === 'p' ? 'Part' : x.k === 's' ? '해결법' : '챕터'}</span><span class="w">${hl(x.w, ql)}</span>`;
     return `<li role="option" id="o${i}"${i === sel ? ' class="on" aria-selected="true"' : ''}><div class="h">${head}</div><div class="m">${linkify(x.m, x)}</div><div class="at"><b>${esc(book)}</b> · ${esc(x.at)}</div></li>`;
   }).join('');
   resEl.scrollTop = 0;
